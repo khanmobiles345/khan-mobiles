@@ -133,10 +133,12 @@ exports.deleteOrder = async (req, res) => {
     });
   }
 
-  // Restore reserved stock when an order is deleted.
-  for (const item of order.items) {
-    if (item.product) {
-      await Product.updateOne({ _id: item.product }, { $inc: { stock: item.quantity } });
+  // Restore reserved stock only if it was not already restored by cancellation.
+  if (order.status !== 'cancelled') {
+    for (const item of order.items) {
+      if (item.product) {
+        await Product.updateOne({ _id: item.product }, { $inc: { stock: item.quantity } });
+      }
     }
   }
 

@@ -122,6 +122,28 @@ exports.downloadInvoice = async (req, res) => {
   streamInvoice({ orderNumber: order.orderNumber, status: order.status, createdAt: order.createdAt, fullName: order.fullName, email: order.email, phone: order.phone, address: order.address, landmark: order.landmark, city: order.city, paymentMethod: order.paymentMethod, subtotal: Number(order.subtotal), discount: Number(order.discount), deliveryFee: Number(order.deliveryFee), total: Number(order.total), promoCode: order.promoCode, items: order.items.map((i) => ({ name: i.name, price: Number(i.price), quantity: i.quantity })) }, res);
 };
 
+exports.deleteOrder = async (req, res) => {
+  const order = await Order.findById(req.params.id);
+  if (!order) return res.status(404).json({ success: false, message: 'Order not found.' });
+
+  if (order.courier?.trackingNumber) {
+    return res.status(409).json({
+      success: false,
+      message: 'This order has a Leopards tracking number. Cancel the shipment before deleting the order.',
+    });
+  }
+
+  // Restore reserved stock when an order is deleted.
+  for (const item of order.items) {
+    if (item.product) {
+      await Product.updateOne({ _id: item.product }, { $inc: { stock: item.quantity } });
+    }
+  }
+
+  await Order.deleteOne({ _id: order._id });
+  res.json({ success: true, message: 'Order deleted.' });
+};
+
 exports.stats = async (req, res) => {
   const [pendingCount, totalOrders, revenueAgg, lowStockCount, productCount] = await Promise.all([
     Order.countDocuments({ status: 'pending' }), Order.countDocuments(),

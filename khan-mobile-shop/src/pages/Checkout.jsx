@@ -7,7 +7,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Container from '../components/Container';
 import Button from '../components/Button';
-import { trackInitiateCheckout } from '../services/metaPixel';
+import { trackInitiateCheckout, trackTikTokInitiateCheckout } from '../services/metaPixel';
 
 const CITIES = ['Lahore', 'Karachi', 'Islamabad', 'Rawalpindi', 'Faisalabad', 'Multan', 'Peshawar', 'Quetta'];
 
@@ -26,6 +26,7 @@ const emptyForm = {
   const [resending, setResending] = useState(false);
   const [resent, setResent] = useState(false);
   const [checkingAgain, setCheckingAgain] = useState(false);
+  const [idempotencyKey] = useState(() => (crypto?.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`));
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -39,19 +40,7 @@ const emptyForm = {
 
     trackInitiateCheckout(items, Number(total));
 
-    if (!window.ttq) return;
-
-    window.ttq.track('InitiateCheckout', {
-      contents: items.map((item) => ({
-        content_id: String(item.id),
-        content_name: item.name,
-        content_type: 'product',
-        quantity: Number(item.quantity),
-        price: Number(item.price),
-      })),
-      value: Number(total),
-      currency: 'PKR',
-    });
+    trackTikTokInitiateCheckout(items, Number(total));
   }, [items, total]);
 
   const handleResendVerification = async () => {
@@ -150,6 +139,7 @@ const emptyForm = {
         })),
         subtotal, discount, deliveryFee, total,
         promoCode: promo?.code || null,
+        idempotencyKey,
         fullName: form.fullName, email: form.email, phone: form.phone,
         address: form.address, landmark: form.landmark, city: form.city, paymentMethod: form.paymentMethod,
       });

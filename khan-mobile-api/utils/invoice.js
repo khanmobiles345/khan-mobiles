@@ -1,7 +1,7 @@
 const PDFDocument = require('pdfkit');
 
 const money = (n) => `Rs. ${Number(n || 0).toLocaleString('en-PK')}`;
-const safe = (value, fallback = '—') => {
+const safe = (value, fallback = '-') => {
   const text = String(value ?? '').trim();
   return text || fallback;
 };
@@ -12,13 +12,13 @@ const titleCase = (value) =>
     .replace(/\b\w/g, (char) => char.toUpperCase());
 
 const streamInvoice = (order, res) => {
-  const doc = new PDFDocument({ size: 'A4', margin: 0, bufferPages: true });
+  const doc = new PDFDocument({ size: 'A4', margin: 50 });
 
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader('Content-Disposition', `attachment; filename="invoice-${order.orderNumber}.pdf"`);
   doc.pipe(res);
 
-  const page = { left: 48, right: 547, width: 499 };
+  const page = { left: 50, right: 545, width: 495 };
   const navy = '#0F172A';
   const slate = '#475569';
   const muted = '#64748B';
@@ -105,7 +105,7 @@ const streamInvoice = (order, res) => {
       .text(String(item.quantity || 0), 350, y + 11, { width: 42, align: 'right' })
       .text(money(item.price), 398, y + 11, { width: 68, align: 'right' })
       .text(money(itemTotal), 477, y + 11, { width: 61, align: 'right' });
-    doc.moveTo(page.left, y + rowHeight).lineTo(547, y + rowHeight).strokeColor(border).stroke();
+    doc.moveTo(page.left, y + rowHeight).lineTo(545, y + rowHeight).strokeColor(border).stroke();
     y += rowHeight;
   });
 
@@ -125,7 +125,7 @@ const streamInvoice = (order, res) => {
   doc.moveTo(totalsX, y - 5).lineTo(totalsX + totalsW, y - 5).strokeColor(border).stroke();
   row('Subtotal', money(order.subtotal));
   if (Number(order.discount || 0) > 0) {
-    row(order.promoCode ? `Discount (${order.promoCode})` : 'Discount', `− ${money(order.discount)}`);
+    row(order.promoCode ? `Discount (${order.promoCode})` : 'Discount', `- ${money(order.discount)}`);
   }
   row('Delivery', Number(order.deliveryFee || 0) === 0 ? 'FREE' : money(order.deliveryFee));
   doc.moveTo(totalsX, y - 5).lineTo(totalsX + totalsW, y - 5).strokeColor(navy).lineWidth(1.2).stroke();

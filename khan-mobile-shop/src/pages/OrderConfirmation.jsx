@@ -6,7 +6,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Container from '../components/Container';
 import Button from '../components/Button';
-import { trackPurchase } from '../services/metaPixel';
+import { trackPurchase, trackTikTokPurchase } from '../services/metaPixel';
 
 const OrderConfirmation = () => {
   const location = useLocation();
@@ -49,17 +49,7 @@ const OrderConfirmation = () => {
     // the Meta Pixel receives the conversion exactly once per order.
     trackPurchase(order);
 
-    if (window.ttq) window.ttq.track('Purchase', {
-      contents: (order.items || []).map((item) => ({
-        content_id: String(item.productId || item.id),
-        content_name: item.name,
-        content_type: 'product',
-        quantity: Number(item.quantity),
-        price: Number(item.price),
-      })),
-      value: Number(order.total),
-      currency: 'PKR',
-    });
+    trackTikTokPurchase(order);
 
     sessionStorage.setItem(purchaseKey, '1');
   }, [order]);

@@ -33,8 +33,8 @@ const streamInvoice = (order, res) => {
     .text('KHAN MOBILES', page.left, 34);
   doc.font('Helvetica').fontSize(9.5).fillColor('#CBD5E1')
     .text('Mobile Accessories & Gadgets', page.left, 66);
-  doc.fontSize(9).text('Industrial Estate Area · Near UBL Bank · Multan', page.left, 82);
-  doc.fontSize(9).text('khanmobiles345@gmail.com · WhatsApp: 03166953534', page.left, 97);
+  doc.fontSize(9).text('Industrial Estate Area - Near UBL Bank - Multan', page.left, 82);
+  doc.fontSize(9).text('khanmobiles345@gmail.com - WhatsApp: 03166953534', page.left, 97);
 
   doc.font('Helvetica-Bold').fontSize(22).fillColor(white)
     .text('INVOICE', 390, 38, { width: 157, align: 'right' });
@@ -69,7 +69,7 @@ const streamInvoice = (order, res) => {
     .text(safe(order.email), 63, y + 67)
     .text(safe(order.address), 63, y + 81, { width: 285 });
   const location = [order.landmark && `Landmark: ${order.landmark}`, order.city]
-    .filter(Boolean).join(' · ');
+    .filter(Boolean).join(' - ');
   if (location) doc.text(location, 63, y + 95, { width: 285 });
 
   doc.font('Helvetica-Bold').fontSize(10).fillColor(navy)
@@ -100,7 +100,7 @@ const streamInvoice = (order, res) => {
     if (index % 2 === 0) doc.rect(page.left, y, page.width, rowHeight).fill('#F8FAFC');
     const itemTotal = Number(item.price || 0) * Number(item.quantity || 0);
     doc.font('Helvetica-Bold').fontSize(9).fillColor(navy)
-      .text(safe(item.name), 60, y + 11, { width: 275, ellipsis: true });
+      .text(safe(item.name), 60, y + 11, { width: 275,  });
     doc.font('Helvetica').fontSize(9).fillColor(slate)
       .text(String(item.quantity || 0), 350, y + 11, { width: 42, align: 'right' })
       .text(money(item.price), 398, y + 11, { width: 68, align: 'right' })
@@ -142,7 +142,7 @@ const streamInvoice = (order, res) => {
     .text('For order support, contact us using the details shown above.', 63, footerY + 41);
 
   doc.font('Helvetica').fontSize(7.5).fillColor('#94A3B8')
-    .text('Computer-generated invoice · Khan Mobiles', page.left, 760, {
+    .text('Computer-generated invoice - Khan Mobiles', page.left, 760, {
       width: page.width,
       align: 'center',
     });

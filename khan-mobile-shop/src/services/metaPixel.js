@@ -2,12 +2,17 @@ const META_PIXEL_ID = '819668267751439';
 
 const isReady = () => typeof window !== 'undefined' && typeof window.fbq === 'function';
 const isTikTokReady = () => typeof window !== 'undefined' && window.ttq && typeof window.ttq.track === 'function';
+const isBrowser = () => typeof window !== 'undefined';
 
 const oncePerSession = (key, callback) => {
-  if (typeof window === 'undefined' || typeof window.sessionStorage === 'undefined') return callback();
+  if (!isBrowser() || typeof window.sessionStorage === 'undefined') return callback();
   const storageKey = `khan-mobile-track-${key}`;
   if (sessionStorage.getItem(storageKey)) return;
-  sessionStorage.setItem(storageKey, '1');
+  try {
+    sessionStorage.setItem(storageKey, '1');
+  } catch {
+    // If storage is blocked, still allow the event to be sent.
+  }
   callback();
 };
 

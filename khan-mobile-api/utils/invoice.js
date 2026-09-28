@@ -34,7 +34,7 @@ const streamInvoice = (order, res) => {
   doc.font('Helvetica').fontSize(9.5).fillColor('#CBD5E1')
     .text('Mobile Accessories & Gadgets', page.left, 66);
   doc.fontSize(9).text('Industrial Estate Area · Near UBL Bank · Multan', page.left, 82);
-  doc.fontSize(9).text('info@khanmobile.pk · +92 300 123 4567', page.left, 97);
+  doc.fontSize(9).text('khanmobiles345@gmail.com · WhatsApp: 03166953534', page.left, 97);
 
   doc.font('Helvetica-Bold').fontSize(22).fillColor(white)
     .text('INVOICE', 390, 38, { width: 157, align: 'right' });

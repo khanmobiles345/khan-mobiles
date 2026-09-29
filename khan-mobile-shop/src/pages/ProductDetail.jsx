@@ -11,8 +11,7 @@ import Container from '../components/Container';
 import Button from '../components/Button';
 import Badge from '../components/Badge';
 import ProductCard from '../components/ProductCard';
-import { trackTikTokViewContent, trackTikTokAddToCart, trackTikTokInitiateCheckout } from '../services/metaPixel';
-import { trackMetaViewContent } from '../services/metaPixel';
+import { trackTikTokViewContent, trackTikTokAddToCart, trackTikTokInitiateCheckout, trackMetaViewContent, trackMetaAddToCart } from '../services/metaPixel';
 
 const badgeVariantMap = { New: 'accent', Hot: 'warning', Sale: 'warning', Bestseller: 'success' };
 
@@ -147,16 +146,8 @@ const ProductDetail = () => {
 
   useEffect(() => {
     if (!product) return;
-    try {
-      trackTikTokViewContent(product);
-    } catch {
-      // tracking must never break rendering
-    }
-    try {
-      trackMetaViewContent(product);
-    } catch {
-      // Meta tracking must never break rendering
-    }
+    try { trackTikTokViewContent(product); } catch { /* tracking must never break rendering */ }
+    try { trackMetaViewContent(product); } catch { /* Meta tracking must never break rendering */ }
   }, [product]);
 
   if (loading) {
@@ -205,10 +196,25 @@ const ProductDetail = () => {
 
   const handleAddToCart = () => {
     if (!isAuthenticated) return requireLogin();
+
     addItem(product, quantity);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
+
     trackTikTokAddToCart(product, quantity);
+
+    // Meta AddToCart fires only from this actual "Add to Cart" action.
+    // The action id is created once per click, so accidental duplicate
+    // handler invocations with the same id are deduplicated by the manager.
+    let actionId;
+    try {
+      actionId = typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    } catch {
+      actionId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    }
+    trackMetaAddToCart(product, quantity, actionId);
   };
 
   const handleBuyNow = () => {

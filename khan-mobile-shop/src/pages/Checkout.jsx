@@ -7,7 +7,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Container from '../components/Container';
 import Button from '../components/Button';
-import { trackInitiateCheckout, trackTikTokInitiateCheckout } from '../services/metaPixel';
+import { trackTikTokInitiateCheckout } from '../services/metaPixel';
 
 const CITIES = ['Lahore', 'Karachi', 'Islamabad', 'Rawalpindi', 'Faisalabad', 'Multan', 'Peshawar', 'Quetta'];
 
@@ -37,9 +37,6 @@ const emptyForm = {
 
   useEffect(() => {
     if (!items.length) return;
-
-    trackInitiateCheckout(items, Number(total));
-
     trackTikTokInitiateCheckout(items, Number(total));
   }, [items, total]);
 

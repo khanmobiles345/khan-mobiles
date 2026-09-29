@@ -1,3 +1,21 @@
+// TikTok tracking helpers. Meta/Facebook Pixel has been removed.
+const isTikTokReady = () =>
+  typeof window !== 'undefined' &&
+  window.ttq &&
+  typeof window.ttq.track === 'function';
+
+const oncePerSession = (key, callback) => {
+  try {
+    const storageKey = 'khan-ttq-' + key;
+    if (window.sessionStorage.getItem(storageKey)) return;
+    window.sessionStorage.setItem(storageKey, '1');
+    callback();
+  } catch {
+    // Tracking must never break the product page if storage is unavailable.
+    callback();
+  }
+};
+
 export const trackTikTokViewContent = (product) => {
   if (!isTikTokReady() || !product) return;
   oncePerSession(`tt-view-${String(product.id)}`, () => {

@@ -5,23 +5,18 @@
  * This module is the ONLY place where application code should call fbq().
  *
  * Safety rules:
- * - No Meta event is enabled by default.
  * - Only events explicitly added to ENABLED_META_EVENTS can fire.
  * - Every event gets a stable eventId.
  * - The same dedupeKey cannot fire twice during the current page session.
  * - Tracking failures are swallowed so analytics can never break the shop UI.
- *
- * To enable an event later, add ONLY that event name to ENABLED_META_EVENTS.
- * Example: new Set(['Purchase'])
  *
  * Do not call window.fbq directly from components/pages.
  */
 
 const META_PIXEL_ID = '819668267751439';
 
-// Intentionally empty right now: the Pixel stays connected, but no Meta
-// events are sent until an event is explicitly enabled here.
-const ENABLED_META_EVENTS = new Set();
+// Only ViewContent is enabled for now.
+const ENABLED_META_EVENTS = new Set(['ViewContent']);
 
 const DEDUPE_TTL_MS = 5000;
 const sentEvents = new Map();
@@ -50,13 +45,6 @@ const cleanupDedupeCache = (now) => {
   }
 };
 
-/**
- * Fire one explicitly enabled Meta event.
- *
- * dedupeKey:
- *   Use a stable action/order/product key when the same logical action
- *   could reach this function more than once.
- */
 export const trackMetaEvent = (eventName, parameters = {}, options = {}) => {
   try {
     if (!ENABLED_META_EVENTS.has(eventName)) return false;
@@ -73,9 +61,6 @@ export const trackMetaEvent = (eventName, parameters = {}, options = {}) => {
     if (dedupeKey) sentEvents.set(dedupeKey, now);
 
     const eventId = makeEventId(eventName, options.dedupeKey);
-
-    // Browser Pixel event with an explicit eventID. This also makes the
-    // event ready for future server-side CAPI deduplication if needed.
     window.fbq('track', eventName, parameters, { eventID: eventId });
 
     return true;
@@ -84,6 +69,24 @@ export const trackMetaEvent = (eventName, parameters = {}, options = {}) => {
   }
 };
 
+export const trackMetaViewContent = (product) => {
+  if (!product) return false;
+
+  return trackMetaEvent(
+    'ViewContent',
+    {
+      content_ids: [String(product.id)],
+      content_name: product.name,
+      content_type: 'product',
+      value: Number(product.price),
+      currency: 'PKR',
+    },
+    { dedupeKey: `product-${product.id}` },
+  );
+};
+
+// Other Meta events remain available for later, but are disabled until
+// explicitly added to ENABLED_META_EVENTS.
 export const trackMetaAddToCart = (product, quantity = 1, actionId) => {
   if (!product) return false;
 
@@ -103,22 +106,6 @@ export const trackMetaAddToCart = (product, quantity = 1, actionId) => {
       }],
     },
     { dedupeKey: actionId || `product-${product.id}-${Date.now()}` },
-  );
-};
-
-export const trackMetaViewContent = (product) => {
-  if (!product) return false;
-
-  return trackMetaEvent(
-    'ViewContent',
-    {
-      content_ids: [String(product.id)],
-      content_name: product.name,
-      content_type: 'product',
-      value: Number(product.price),
-      currency: 'PKR',
-    },
-    { dedupeKey: `product-${product.id}` },
   );
 };
 

@@ -12,6 +12,7 @@ import Button from '../components/Button';
 import Badge from '../components/Badge';
 import ProductCard from '../components/ProductCard';
 import { trackTikTokViewContent, trackTikTokAddToCart, trackTikTokInitiateCheckout } from '../services/metaPixel';
+import { trackMetaViewContent } from '../services/metaPixel';
 
 const badgeVariantMap = { New: 'accent', Hot: 'warning', Sale: 'warning', Bestseller: 'success' };
 
@@ -36,6 +37,9 @@ const ReviewsSection = ({ productId, rating, reviewCount }) => {
       .catch(() => setReviews([]))
       .finally(() => setLoading(false));
   }, [productId]);
+
+  const safeRating = Number(rating) || 0;
+  const safeReviewCount = Number(reviewCount) || 0;
 
   return (
     <section className="pb-20 border-t border-navy-700 pt-12">
@@ -106,8 +110,6 @@ const ProductDetail = () => {
         throw new Error('Invalid product response');
       }
 
-      // Normalize API values so one malformed/missing optional field can never
-      // crash the whole product-detail page into a blank screen.
       const normalizedProduct = {
         ...productData,
         name: String(productData.name || 'Product'),
@@ -131,7 +133,6 @@ const ProductDetail = () => {
           const relatedProducts = Array.isArray(relatedData?.products) ? relatedData.products : [];
           setRelated(relatedProducts.filter((p) => p.id !== normalizedProduct.id).slice(0, 4));
         } catch {
-          // Related products are optional; never block the main product page.
           setRelated([]);
         }
       }
@@ -146,7 +147,16 @@ const ProductDetail = () => {
 
   useEffect(() => {
     if (!product) return;
-    try { trackTikTokViewContent(product); } catch { /* tracking must never break rendering */ }
+    try {
+      trackTikTokViewContent(product);
+    } catch {
+      // tracking must never break rendering
+    }
+    try {
+      trackMetaViewContent(product);
+    } catch {
+      // Meta tracking must never break rendering
+    }
   }, [product]);
 
   if (loading) {
@@ -205,7 +215,6 @@ const ProductDetail = () => {
     if (!isAuthenticated) return requireLogin();
     addItem(product, quantity);
     trackTikTokInitiateCheckout([product], Number(product.price) * Number(quantity));
-
     navigate('/checkout');
   };
 
@@ -220,7 +229,6 @@ const ProductDetail = () => {
       <Navbar />
       <main className="pt-16 min-h-screen">
         <Container>
-          {/* Breadcrumb */}
           <nav className="py-6 text-sm text-slate-500 flex items-center gap-2 flex-wrap">
             <Link to="/" className="hover:text-accent transition-colors">Home</Link>
             <span>/</span>
@@ -232,63 +240,61 @@ const ProductDetail = () => {
           </nav>
 
           <div className="grid md:grid-cols-2 gap-10 lg:gap-16 pb-16">
-         {/* Image gallery */}
-<div>
-  <motion.div
-    key={activeImage}
-    drag={gallery.length > 1 ? 'x' : false}
-    dragConstraints={{ left: 0, right: 0 }}
-    dragElastic={0.2}
-    onDragEnd={(e, info) => {
-      const threshold = 50;
-      if (info.offset.x < -threshold && activeImageIndex < gallery.length - 1) {
-        setActiveImageIndex((i) => i + 1);
-      } else if (info.offset.x > threshold && activeImageIndex > 0) {
-        setActiveImageIndex((i) => i - 1);
-      }
-    }}
-    initial={{ opacity: 0.6 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}
-    className={`relative rounded-xl3 overflow-hidden h-80 md:h-[28rem] bg-cover bg-center ${gallery.length > 1 ? 'touch-pan-y cursor-grab active:cursor-grabbing' : ''}`}
-    style={activeImage ? { backgroundImage: `url(${activeImage})` } : { background: bgGradient }}
-  >
-    <div className="absolute top-5 left-5 flex flex-col gap-2 items-start">
-      {badge && <Badge variant={badgeVariantMap[badge] || 'accent'}>{badge}</Badge>}
-      {onSale && <Badge variant="warning">-{discountPct}% OFF</Badge>}
-    </div>
-  </motion.div>
+            <div>
+              <motion.div
+                key={activeImage}
+                drag={gallery.length > 1 ? 'x' : false}
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.2}
+                onDragEnd={(e, info) => {
+                  const threshold = 50;
+                  if (info.offset.x < -threshold && activeImageIndex < gallery.length - 1) {
+                    setActiveImageIndex((i) => i + 1);
+                  } else if (info.offset.x > threshold && activeImageIndex > 0) {
+                    setActiveImageIndex((i) => i - 1);
+                  }
+                }}
+                initial={{ opacity: 0.6 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}
+                className={`relative rounded-xl3 overflow-hidden h-80 md:h-[28rem] bg-cover bg-center ${gallery.length > 1 ? 'touch-pan-y cursor-grab active:cursor-grabbing' : ''}`}
+                style={activeImage ? { backgroundImage: `url(${activeImage})` } : { background: bgGradient }}
+              >
+                <div className="absolute top-5 left-5 flex flex-col gap-2 items-start">
+                  {badge && <Badge variant={badgeVariantMap[badge] || 'accent'}>{badge}</Badge>}
+                  {onSale && <Badge variant="warning">-{discountPct}% OFF</Badge>}
+                </div>
+              </motion.div>
 
-  {gallery.length > 1 && (
-    <div className="flex justify-center gap-1.5 mt-3 md:hidden">
-      {gallery.map((img, i) => (
-        <button
-          key={img.id}
-          onClick={() => setActiveImageIndex(i)}
-          aria-label={`Go to image ${i + 1}`}
-          className={`h-1.5 rounded-full transition-all ${i === activeImageIndex ? 'w-6 bg-accent' : 'w-1.5 bg-navy-700'}`}
-        />
-      ))}
-    </div>
-  )}
+              {gallery.length > 1 && (
+                <div className="flex justify-center gap-1.5 mt-3 md:hidden">
+                  {gallery.map((img, i) => (
+                    <button
+                      key={img.id}
+                      onClick={() => setActiveImageIndex(i)}
+                      aria-label={`Go to image ${i + 1}`}
+                      className={`h-1.5 rounded-full transition-all ${i === activeImageIndex ? 'w-6 bg-accent' : 'w-1.5 bg-navy-700'}`}
+                    />
+                  ))}
+                </div>
+              )}
 
-  {gallery.length > 1 && (
-    <div className="flex gap-3 mt-4 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
-      {gallery.map((img, i) => (
-        <button
-          key={img.id}
-          onClick={() => setActiveImageIndex(i)}
-          aria-label={`View image ${i + 1}`}
-          className={`w-16 h-16 rounded-xl2 overflow-hidden bg-cover bg-center border-2 transition-colors shrink-0 ${
-            i === activeImageIndex ? 'border-accent' : 'border-transparent opacity-70 hover:opacity-100'
-          }`}
-          style={{ backgroundImage: `url(${img.url})` }}
-        />
-      ))}
-    </div>
-  )}
-</div>
+              {gallery.length > 1 && (
+                <div className="flex gap-3 mt-4 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
+                  {gallery.map((img, i) => (
+                    <button
+                      key={img.id}
+                      onClick={() => setActiveImageIndex(i)}
+                      aria-label={`View image ${i + 1}`}
+                      className={`w-16 h-16 rounded-xl2 overflow-hidden bg-cover bg-center border-2 transition-colors shrink-0 ${
+                        i === activeImageIndex ? 'border-accent' : 'border-transparent opacity-70 hover:opacity-100'
+                      }`}
+                      style={{ backgroundImage: `url(${img.url})` }}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
 
-            {/* Info */}
-            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1 }} transition={{ duration: 0.4, delay: 0.1 }}>
               <span className="text-xs font-semibold tracking-widest uppercase text-accent mb-3 block">{brand}</span>
               <h1 className="text-3xl md:text-4xl font-extrabold mb-4">{name}</h1>
 

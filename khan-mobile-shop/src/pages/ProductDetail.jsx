@@ -11,7 +11,7 @@ import Container from '../components/Container';
 import Button from '../components/Button';
 import Badge from '../components/Badge';
 import ProductCard from '../components/ProductCard';
-import { trackViewContent, trackAddToCart, trackInitiateCheckout, trackTikTokViewContent, trackTikTokAddToCart, trackTikTokInitiateCheckout } from '../services/metaPixel';
+import { trackTikTokViewContent, trackTikTokAddToCart, trackTikTokInitiateCheckout } from '../services/metaPixel';
 
 const badgeVariantMap = { New: 'accent', Hot: 'warning', Sale: 'warning', Bestseller: 'success' };
 
@@ -115,9 +115,6 @@ const ProductDetail = () => {
 
   useEffect(() => {
     if (!product) return;
-
-    trackViewContent(product);
-
     trackTikTokViewContent(product);
   }, [product]);
 
@@ -165,18 +162,12 @@ const ProductDetail = () => {
     addItem(product, quantity);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
-
-    trackAddToCart(product, quantity);
-
     trackTikTokAddToCart(product, quantity);
   };
 
   const handleBuyNow = () => {
     if (!isAuthenticated) return requireLogin();
     addItem(product, quantity);
-
-    trackInitiateCheckout([product], Number(product.price) * Number(quantity));
-
     trackTikTokInitiateCheckout([product], Number(product.price) * Number(quantity));
 
     navigate('/checkout');

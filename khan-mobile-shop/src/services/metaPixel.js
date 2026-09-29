@@ -55,16 +55,51 @@ export const trackInitiateCheckout = (items, total) => {
 
 export const trackPurchase = (order) => {
   if (!isReady() || !order) return;
-  const key = `purchase-${order.orderId || order.orderNumber}`;
-  oncePerSession(key, () => {
-    window.fbq('track', 'Purchase', {
-      content_ids: (order.items || []).map((item) => String(item.productId || item.id)),
-      contents: (order.items || []).map((item) => ({ id: String(item.productId || item.id), quantity: Number(item.quantity), item_price: Number(item.price) })),
-      content_type: 'product',
-      num_items: (order.items || []).reduce((sum, item) => sum + Number(item.quantity || 0), 0),
-      value: Number(order.total),
-      currency: 'PKR',
+
+  const orderKey = order.orderId || order.orderNumber;
+  if (!orderKey) return;
+
+  // Meta requires Purchase.value to be a real positive number and
+  // Purchase.currency to be a valid ISO 4217 currency code.
+  // The API returns total as a number, but normalize it defensively so
+  // formatted strings or invalid values can never be sent to Meta.
+  const purchaseValue = Number(order.total);
+  if (!Number.isFinite(purchaseValue) || purchaseValue <= 0) {
+    console.warn('[Meta Pixel] Purchase skipped: invalid order total', order.total);
+    return;
+  }
+
+  const items = Array.isArray(order.items) ? order.items : [];
+  const contentIds = items
+    .map((item) => item.productId || item.id)
+    .filter(Boolean)
+    .map((id) => String(id));
+
+  const contents = items
+    .filter((item) => item.productId || item.id)
+    .map((item) => {
+      const quantity = Number(item.quantity);
+      const itemPrice = Number(item.price);
+      return {
+        id: String(item.productId || item.id),
+        quantity: Number.isFinite(quantity) && quantity > 0 ? quantity : 1,
+        item_price: Number.isFinite(itemPrice) && itemPrice >= 0 ? itemPrice : 0,
+      };
     });
+
+  oncePerSession(`purchase-${String(orderKey)}`, () => {
+    const purchaseParams = {
+      value: purchaseValue,
+      currency: 'PKR',
+      content_type: 'product',
+      content_ids: contentIds,
+      contents,
+      num_items: contents.reduce((sum, item) => sum + item.quantity, 0),
+    };
+
+    // Keep value and currency at the top level of the Purchase event.
+    // These are the parameters Meta uses for purchase value reporting.
+    window.fbq('track', 'Purchase', purchaseParams);
   });
 };
 

@@ -192,6 +192,8 @@ const ProductDetail = () => {
   const productSchema = {
     '@context': 'https://schema.org',
     '@type': 'Product',
+    category: category || undefined,
+    isRelatedTo: related.length ? related.map((item) => ({ '@type': 'Product', name: item.name, sku: String(item.id) })) : undefined,
     name,
     description: description || `${name} by ${brand}`,
     image: gallery.map((img) => img.url).filter(Boolean),

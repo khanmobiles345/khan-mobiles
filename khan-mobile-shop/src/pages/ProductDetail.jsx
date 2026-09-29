@@ -199,7 +199,7 @@ const ProductDetail = () => {
     brand: brand ? { '@type': 'Brand', name: brand } : undefined,
     offers: {
       '@type': 'Offer',
-      url: `${SITE_URL_PLACEHOLDER}/product/${product.id}`,
+      url: `https://khanmobile.pk/product/${product.id}`,
       priceCurrency: 'PKR',
       price: safePrice.toFixed(2),
       availability: safeStock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',

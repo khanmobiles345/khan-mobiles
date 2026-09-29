@@ -1,5 +1,6 @@
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { downloadFile } from '../services/api';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';

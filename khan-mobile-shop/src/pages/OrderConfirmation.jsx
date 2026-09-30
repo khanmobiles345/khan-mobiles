@@ -17,12 +17,14 @@ const OrderConfirmation = () => {
   const [downloadingInvoice, setDownloadingInvoice] = useState(false);
   const [invoiceError, setInvoiceError] = useState('');
   const isAuthenticatedOrder = !!user;
+  const invoiceToken = order?.invoiceToken || '';
 
   const handleDownloadInvoice = async () => {
     setDownloadingInvoice(true);
     setInvoiceError('');
     try {
-      await downloadFile(`/api/orders/${order.orderId}/invoice`, `invoice-${order.orderNumber}.pdf`);
+      const tokenQuery = invoiceToken ? `?token=${encodeURIComponent(invoiceToken)}` : '';
+      await downloadFile(`/api/orders/${order.orderId}/invoice${tokenQuery}`, `invoice-${order.orderNumber}.pdf`);
     } catch (err) {
       setInvoiceError(err.message || 'Could not download invoice.');
     } finally {
@@ -160,7 +162,7 @@ const OrderConfirmation = () => {
             </div>
 
             {isAuthenticatedOrder && invoiceError && <p className="text-red-600 text-sm mb-3">{invoiceError}</p>}
-            {isAuthenticatedOrder && (
+            {(isAuthenticatedOrder || invoiceToken) && (
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <button onClick={handleDownloadInvoice} disabled={downloadingInvoice}
                   className="text-sm font-semibold text-accent hover:underline">

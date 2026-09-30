@@ -48,6 +48,10 @@ const rememberFbcFromUrl = () => {
   }
 };
 
+// Capture the Meta click ID as soon as the app loads, before SPA navigation
+// removes fbclid from the address bar.
+rememberFbcFromUrl();
+
 export const getMetaTrackingContext = () => {
   if (typeof window === 'undefined') return { fbp: null, fbc: null, eventSourceUrl: null };
 

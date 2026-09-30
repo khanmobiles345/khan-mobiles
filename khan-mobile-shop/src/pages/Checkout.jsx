@@ -153,6 +153,7 @@ const Checkout = () => {
         idempotencyKey,
         fullName: form.fullName, email: form.email, phone: form.phone,
         address: form.address, landmark: form.landmark, city: form.city, paymentMethod: form.paymentMethod,
+        metaTrackingContext: getMetaTrackingContext(),
       });
 
       clearCart();

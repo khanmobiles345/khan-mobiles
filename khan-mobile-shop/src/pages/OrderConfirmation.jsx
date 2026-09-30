@@ -7,14 +7,16 @@ import Footer from '../components/Footer';
 import Container from '../components/Container';
 import Button from '../components/Button';
 import { trackTikTokPurchase, trackMetaPurchase } from '../services/metaPixel';
+import { useAuth } from '../context/AuthContext';
 
 const OrderConfirmation = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [order, setOrder] = useState(location.state || null);
   const [downloadingInvoice, setDownloadingInvoice] = useState(false);
   const [invoiceError, setInvoiceError] = useState('');
-  const isAuthenticatedOrder = !!order?.user;
+  const isAuthenticatedOrder = !!user;
 
   const handleDownloadInvoice = async () => {
     setDownloadingInvoice(true);

@@ -2,7 +2,7 @@ const crypto = require('crypto');
 
 const PIXEL_ID = process.env.META_PIXEL_ID || '819668267751439';
 const ACCESS_TOKEN = process.env.META_ACCESS_TOKEN || '';
-const GRAPH_API_VERSION = process.env.META_GRAPH_API_VERSION || '';
+const GRAPH_API_VERSION = process.env.META_GRAPH_API_VERSION || 'v26.0';
 const TEST_EVENT_CODE = process.env.META_TEST_EVENT_CODE || '';
 
 const sha256 = (value) => crypto.createHash('sha256').update(String(value)).digest('hex');

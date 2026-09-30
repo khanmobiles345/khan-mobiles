@@ -28,6 +28,48 @@ const ENABLED_META_EVENTS = new Set([
 const DEDUPE_TTL_MS = 5000;
 const sentEvents = new Map();
 
+const readCookie = (name) => {
+  if (typeof document === 'undefined') return null;
+  const prefix = `${name}=`;
+  const match = document.cookie.split('; ').find((part) => part.startsWith(prefix));
+  return match ? decodeURIComponent(match.slice(prefix.length)) : null;
+};
+
+const rememberFbcFromUrl = () => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const fbclid = new URLSearchParams(window.location.search).get('fbclid');
+    if (!fbclid) return null;
+    const fbc = `fb.1.${Date.now()}.${fbclid}`;
+    window.localStorage.setItem('khan-meta-fbc', fbc);
+    return fbc;
+  } catch {
+    return null;
+  }
+};
+
+export const getMetaTrackingContext = () => {
+  if (typeof window === 'undefined') return { fbp: null, fbc: null, eventSourceUrl: null };
+
+  try {
+    const fbc = readCookie('_fbc')
+      || rememberFbcFromUrl()
+      || window.localStorage.getItem('khan-meta-fbc')
+      || null;
+    const fbp = readCookie('_fbp') || window.localStorage.getItem('khan-meta-fbp') || null;
+
+    if (fbp) window.localStorage.setItem('khan-meta-fbp', fbp);
+
+    return {
+      fbp,
+      fbc,
+      eventSourceUrl: window.location.href,
+    };
+  } catch {
+    return { fbp: null, fbc: null, eventSourceUrl: window.location.href };
+  }
+};
+
 const isMetaReady = () =>
   typeof window !== 'undefined' &&
   typeof window.fbq === 'function';

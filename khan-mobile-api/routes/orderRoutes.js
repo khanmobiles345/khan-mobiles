@@ -7,7 +7,7 @@ const { protect, adminOnly, optionalAuth } = require('../middleware/auth');
 router.post('/', optionalAuth, create);
 router.get('/mine', protect, myOrders);
 router.put('/:id/cancel', protect, cancelMine);
-router.get('/:id/invoice', protect, downloadInvoice);
+router.get('/:id/invoice', optionalAuth, downloadInvoice);
 router.get('/stats/summary', protect, adminOnly, stats);
 router.get('/', protect, adminOnly, listAll);
 router.get('/:id', protect, adminOnly, getOne);

@@ -29,7 +29,7 @@ exports.create = async (req, res) => {
   if (!Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ success: false, message: 'Your cart is empty.' });
   }
-  if (!req.user.emailVerified) {
+  if (req.user && !req.user.emailVerified) {
     return res.status(403).json({ success: false, message: 'Please verify your email address before placing an order.', code: 'EMAIL_NOT_VERIFIED' });
   }
   if (!fullName?.trim() || !email?.trim() || !phone?.trim() || !address?.trim() || !city?.trim()) {
@@ -45,7 +45,7 @@ exports.create = async (req, res) => {
   // A retry of the same checkout submission returns the existing order instead
   // of reserving stock and creating a second order.
   if (idempotencyKey) {
-    const existing = await Order.findOne({ idempotencyKey, user: req.user._id });
+    const existing = await Order.findOne(req.user ? { idempotencyKey, user: req.user._id } : { idempotencyKey, user: null, email: email.trim().toLowerCase() });
     if (existing) {
       const existingPayload = {
         orderId: existing._id.toString(),
@@ -136,7 +136,7 @@ exports.create = async (req, res) => {
       const orderData = {
         orderNumber: generateOrderNumber(),
         idempotencyKey: idempotencyKey || undefined,
-        user: req.user._id,
+        user: req.user?._id || null,
         subtotal,
         discount,
         deliveryFee,
@@ -189,7 +189,7 @@ exports.create = async (req, res) => {
     res.status(201).json({ success: true, order: orderPayload });
   } catch (err) {
     if (err?.code === 11000 && idempotencyKey) {
-      const existing = await Order.findOne({ idempotencyKey, user: req.user._id });
+      const existing = await Order.findOne(req.user ? { idempotencyKey, user: req.user._id } : { idempotencyKey, user: null, email: email.trim().toLowerCase() });
       if (existing) {
         return res.status(200).json({
           success: true,
@@ -251,14 +251,14 @@ exports.cancelMine = async (req, res) => {
 exports.listAll = async (req, res) => {
   const { status } = req.query;
   const orders = await Order.find(status ? { status } : {}).sort({ createdAt: -1 }).limit(200).populate('user', 'name email');
-  res.json({ success: true, orders: orders.map((o) => ({ id: o._id.toString(), orderNumber: o.orderNumber, customerName: o.user?.name, customerEmail: o.user?.email, total: Number(o.total), status: o.status, city: o.city, paymentMethod: o.paymentMethod, createdAt: o.createdAt, courier: courierPayload(o.courier) })) });
+  res.json({ success: true, orders: orders.map((o) => ({ id: o._id.toString(), orderNumber: o.orderNumber, customerName: o.user?.name || o.fullName, customerEmail: o.user?.email || o.email, total: Number(o.total), status: o.status, city: o.city, paymentMethod: o.paymentMethod, createdAt: o.createdAt, courier: courierPayload(o.courier) })) });
 };
 
 exports.getOne = async (req, res) => {
   const order = await Order.findById(req.params.id).populate('user', 'name email');
   if (!order) return res.status(404).json({ success: false, message: 'Order not found.' });
   res.json({ success: true, order: {
-    id: order._id.toString(), orderNumber: order.orderNumber, status: order.status, customerName: order.user?.name, customerAccountEmail: order.user?.email,
+    id: order._id.toString(), orderNumber: order.orderNumber, status: order.status, customerName: order.user?.name || order.fullName, customerAccountEmail: order.user?.email || order.email,
     fullName: order.fullName, email: order.email, phone: order.phone, address: order.address, landmark: order.landmark, city: order.city, paymentMethod: order.paymentMethod,
     subtotal: Number(order.subtotal), discount: Number(order.discount), deliveryFee: Number(order.deliveryFee), total: Number(order.total), promoCode: order.promoCode, createdAt: order.createdAt, courier: courierPayload(order.courier),
     items: order.items.map((i) => ({ name: i.name, price: Number(i.price), quantity: i.quantity, imageUrl: i.imageUrl, productId: i.product ? i.product.toString() : null })),
@@ -280,7 +280,7 @@ exports.updateStatus = async (req, res) => {
 exports.downloadInvoice = async (req, res) => {
   const order = await Order.findById(req.params.id);
   if (!order) return res.status(404).json({ success: false, message: 'Order not found.' });
-  if (order.user.toString() !== req.user._id.toString() && req.user.role !== 'admin') return res.status(403).json({ success: false, message: 'You can only download your own invoices.' });
+  if ((!order.user || order.user.toString() !== req.user._id.toString()) && req.user.role !== 'admin') return res.status(403).json({ success: false, message: 'You can only download your own invoices.' });
   streamInvoice({ orderNumber: order.orderNumber, status: order.status, createdAt: order.createdAt, fullName: order.fullName, email: order.email, phone: order.phone, address: order.address, landmark: order.landmark, city: order.city, paymentMethod: order.paymentMethod, subtotal: Number(order.subtotal), discount: Number(order.discount), deliveryFee: Number(order.deliveryFee), total: Number(order.total), promoCode: order.promoCode, items: order.items.map((i) => ({ name: i.name, price: Number(i.price), quantity: Number(i.quantity) })) }, res);
 };
 

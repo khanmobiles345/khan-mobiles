@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
@@ -18,7 +19,8 @@ const emptyForm = {
 
 const Checkout = () => {
   const { items, subtotal, discount, deliveryFee, total, promo, clearCart } = useCart();
-  const { user, resendVerification, refreshUser } = useAuth();
+  const { user, resendVerification, refreshUser, loginWithGoogle } = useAuth();
+  const googleConfigured = !!import.meta.env.VITE_GOOGLE_CLIENT_ID;
   const [form, setForm] = useState(emptyForm);
   const [errors, setErrors] = useState({});
   const [placing, setPlacing] = useState(false);
@@ -175,6 +177,33 @@ const Checkout = () => {
             <h1 className="text-3xl md:text-4xl font-extrabold mb-2">Checkout</h1>
             <p className="text-slate-500">Almost there — fill in your delivery details.</p>
           </div>
+
+          {!user && (
+            <div className="mb-8 bg-navy-800 rounded-xl2 p-5 border border-navy-700">
+              <h2 className="text-lg font-bold text-slate-900 mb-1">Checkout as Guest</h2>
+              <p className="text-sm text-slate-500 mb-4">
+                You can place your order without creating an account. Or sign in with Google to save your order history.
+              </p>
+              {googleConfigured && (
+                <div className="mb-3">
+                  <GoogleLogin
+                    onSuccess={async ({ credential }) => {
+                      try {
+                        await loginWithGoogle(credential);
+                      } catch (err) {
+                        setSubmitError(err.message || 'Google sign-in failed. You can continue as a guest.');
+                      }
+                    }}
+                    onError={() => setSubmitError('Google sign-in failed. You can continue as a guest.')}
+                    text="continue_with"
+                    shape="rectangular"
+                    width="320"
+                  />
+                </div>
+              )}
+              <p className="text-xs text-slate-400">No account required — just enter your delivery details below.</p>
+            </div>
+          )}
 
           <form onSubmit={handlePlaceOrder} className="grid lg:grid-cols-3 gap-10 pb-20">
             <div className="lg:col-span-2 space-y-6">

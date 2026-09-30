@@ -4,6 +4,7 @@ const Product = require('../models/Product');
 const Review = require('../models/Review');
 const { sendOrderConfirmationEmail, sendOrderStatusEmail } = require('../utils/email');
 const { streamInvoice } = require('../utils/invoice');
+const { sendMetaPurchase } = require('../services/metaConversionsApi');
 
 const generateOrderNumber = () => `KM-${Date.now().toString().slice(-8)}${Math.floor(Math.random() * 90 + 10)}`;
 const courierPayload = (courier) => courier ? {
@@ -22,7 +23,7 @@ const roundMoney = (value) => Math.round((Number(value) + Number.EPSILON) * 100)
 exports.create = async (req, res) => {
   const {
     items, promoCode, fullName, email, phone, address, landmark, city,
-    paymentMethod = 'cod', idempotencyKey,
+    paymentMethod = 'cod', idempotencyKey, metaTrackingContext,
   } = req.body;
 
   if (!Array.isArray(items) || items.length === 0) {
@@ -46,27 +47,34 @@ exports.create = async (req, res) => {
   if (idempotencyKey) {
     const existing = await Order.findOne({ idempotencyKey, user: req.user._id });
     if (existing) {
+      const existingPayload = {
+        orderId: existing._id.toString(),
+        orderNumber: existing.orderNumber,
+        subtotal: Number(existing.subtotal),
+        discount: Number(existing.discount),
+        deliveryFee: Number(existing.deliveryFee),
+        total: Number(existing.total),
+        items: existing.items.map((i) => ({
+          productId: i.product?.toString() || null,
+          name: i.name,
+          price: Number(i.price),
+          quantity: Number(i.quantity),
+          imageUrl: i.imageUrl,
+        })),
+        fullName: existing.fullName,
+        email: existing.email,
+        phone: existing.phone,
+        placedAt: existing.createdAt.toISOString(),
+      };
+
+      sendMetaPurchase({ order: existingPayload, req, trackingContext: metaTrackingContext }).catch((err) => {
+        console.error('[meta-capi] Purchase retry failed:', err.message);
+      });
+
       return res.status(200).json({
         success: true,
         duplicate: true,
-        order: {
-          orderId: existing._id.toString(),
-          orderNumber: existing.orderNumber,
-          subtotal: Number(existing.subtotal),
-          discount: Number(existing.discount),
-          deliveryFee: Number(existing.deliveryFee),
-          total: Number(existing.total),
-          items: existing.items.map((i) => ({
-            productId: i.product?.toString() || null,
-            name: i.name,
-            price: Number(i.price),
-            quantity: i.quantity,
-            imageUrl: i.imageUrl,
-          })),
-          fullName: existing.fullName,
-          email: existing.email,
-          placedAt: existing.createdAt.toISOString(),
-        },
+        order: existingPayload,
       });
     }
   }
@@ -167,6 +175,14 @@ exports.create = async (req, res) => {
     };
 
     sendOrderConfirmationEmail(orderPayload).catch(() => {});
+
+    // Server-side Purchase is independent of the confirmation-page render.
+    // It uses the same event_id as the browser Pixel event so Meta can deduplicate
+    // the two copies instead of counting the same order twice.
+    sendMetaPurchase({ order: orderPayload, req, trackingContext: metaTrackingContext }).catch((err) => {
+      console.error('[meta-capi] Purchase failed:', err.message);
+    });
+
     res.status(201).json({ success: true, order: orderPayload });
   } catch (err) {
     if (err?.code === 11000 && idempotencyKey) {
@@ -191,6 +207,7 @@ exports.create = async (req, res) => {
             })),
             fullName: existing.fullName,
             email: existing.email,
+            phone: existing.phone,
             placedAt: existing.createdAt.toISOString(),
           },
         });

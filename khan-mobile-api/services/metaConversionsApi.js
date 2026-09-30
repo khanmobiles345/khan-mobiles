@@ -8,9 +8,9 @@ const TEST_EVENT_CODE = process.env.META_TEST_EVENT_CODE || '';
 const sha256 = (value) => crypto.createHash('sha256').update(String(value)).digest('hex');
 
 const normalizeEmail = (value) => String(value || '').trim().toLowerCase();
-const normalizeName = (value) => String(value || '').trim().toLowerCase().replace(/\\s+/g, ' ');
+const normalizeName = (value) => String(value || '').trim().toLowerCase().replace(/\s+/g, ' ');
 const normalizePhone = (value) => {
-  let digits = String(value || '').replace(/\\D/g, '');
+  let digits = String(value || '').replace(/\D/g, '');
   if (digits.startsWith('00')) digits = digits.slice(2);
   if (digits.startsWith('0')) digits = `92${digits.slice(1)}`;
   if (!digits.startsWith('92') && digits.length <= 10) digits = `92${digits}`;

@@ -4,7 +4,8 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { HelmetProvider } from 'react-helmet-async';
 import AOS from 'aos';
 
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { initializeMetaPixel } from './services/metaPixel';
 import { CartProvider } from './context/CartContext';
 import Toast from './components/Toast';
 import WhatsAppButton from './components/WhatsAppButton';
@@ -35,6 +36,17 @@ import AdminProductForm from './pages/admin/AdminProductForm';
 import NotFound from './pages/NotFound';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+
+const MetaPixelBootstrap = () => {
+  const { user, loading } = useAuth();
+
+  useEffect(() => {
+    if (loading) return;
+    initializeMetaPixel(user || {});
+  }, [loading, user]);
+
+  return null;
+};
 
 const AppRoutes = () => (
   <BrowserRouter>
@@ -81,6 +93,7 @@ const App = () => {
       {providers(
         <AuthProvider>
           <CartProvider>
+            <MetaPixelBootstrap />
             <AppRoutes />
           </CartProvider>
         </AuthProvider>

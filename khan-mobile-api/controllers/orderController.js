@@ -64,6 +64,7 @@ exports.create = async (req, res) => {
         fullName: existing.fullName,
         email: existing.email,
         phone: existing.phone,
+        city: existing.city,
         placedAt: existing.createdAt.toISOString(),
       };
 
@@ -171,6 +172,8 @@ exports.create = async (req, res) => {
       })),
       fullName: orderDoc.fullName,
       email: orderDoc.email,
+      phone: orderDoc.phone,
+      city: orderDoc.city,
       placedAt: orderDoc.createdAt.toISOString(),
     };
 
@@ -208,6 +211,7 @@ exports.create = async (req, res) => {
             fullName: existing.fullName,
             email: existing.email,
             phone: existing.phone,
+            city: existing.city,
             placedAt: existing.createdAt.toISOString(),
           },
         });

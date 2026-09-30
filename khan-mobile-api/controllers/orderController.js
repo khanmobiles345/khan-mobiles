@@ -220,6 +220,7 @@ exports.create = async (req, res) => {
             email: existing.email,
             phone: existing.phone,
             city: existing.city,
+            invoiceToken: req.user ? undefined : undefined,
             placedAt: existing.createdAt.toISOString(),
           },
         });

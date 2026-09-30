@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const crypto = require('crypto');
 const Order = require('../models/Order');
 const Product = require('../models/Product');
 const Review = require('../models/Review');
@@ -19,6 +20,8 @@ const courierPayload = (courier) => courier ? {
 } : null;
 
 const roundMoney = (value) => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
+const createGuestInvoiceToken = () => crypto.randomBytes(32).toString('hex');
+const hashGuestInvoiceToken = (token) => crypto.createHash('sha256').update(String(token)).digest('hex');
 
 exports.create = async (req, res) => {
   const {
@@ -80,6 +83,9 @@ exports.create = async (req, res) => {
     }
   }
 
+  const guestInvoiceToken = req.user ? null : createGuestInvoiceToken();
+  const guestInvoiceTokenHash = guestInvoiceToken ? hashGuestInvoiceToken(guestInvoiceToken) : null;
+
   const session = await mongoose.startSession();
   try {
     let orderDoc;
@@ -137,6 +143,7 @@ exports.create = async (req, res) => {
         orderNumber: generateOrderNumber(),
         idempotencyKey: idempotencyKey || undefined,
         user: req.user?._id || null,
+        guestInvoiceTokenHash,
         subtotal,
         discount,
         deliveryFee,
@@ -174,6 +181,7 @@ exports.create = async (req, res) => {
       email: orderDoc.email,
       phone: orderDoc.phone,
       city: orderDoc.city,
+      invoiceToken: guestInvoiceToken || undefined,
       placedAt: orderDoc.createdAt.toISOString(),
     };
 
@@ -278,9 +286,14 @@ exports.updateStatus = async (req, res) => {
 };
 
 exports.downloadInvoice = async (req, res) => {
-  const order = await Order.findById(req.params.id);
+  const token = typeof req.query.token === 'string' ? req.query.token : '';
+  const tokenHash = token ? hashGuestInvoiceToken(token) : '';
+  const order = await Order.findById(req.params.id).select('+guestInvoiceTokenHash');
+  
   if (!order) return res.status(404).json({ success: false, message: 'Order not found.' });
-  if ((!order.user || order.user.toString() !== req.user._id.toString()) && req.user.role !== 'admin') return res.status(403).json({ success: false, message: 'You can only download your own invoices.' });
+  const authenticatedOwner = req.user && order.user && order.user.toString() === req.user._id.toString();
+  const guestOwner = !order.user && tokenHash && order.guestInvoiceTokenHash === tokenHash;
+  if (!authenticatedOwner && !guestOwner && req.user?.role !== 'admin') return res.status(403).json({ success: false, message: 'Invalid invoice access.' });
   streamInvoice({ orderNumber: order.orderNumber, status: order.status, createdAt: order.createdAt, fullName: order.fullName, email: order.email, phone: order.phone, address: order.address, landmark: order.landmark, city: order.city, paymentMethod: order.paymentMethod, subtotal: Number(order.subtotal), discount: Number(order.discount), deliveryFee: Number(order.deliveryFee), total: Number(order.total), promoCode: order.promoCode, items: order.items.map((i) => ({ name: i.name, price: Number(i.price), quantity: Number(i.quantity) })) }, res);
 };
 

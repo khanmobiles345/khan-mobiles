@@ -14,6 +14,7 @@ const OrderConfirmation = () => {
   const [order, setOrder] = useState(location.state || null);
   const [downloadingInvoice, setDownloadingInvoice] = useState(false);
   const [invoiceError, setInvoiceError] = useState('');
+  const isAuthenticatedOrder = !!order?.user;
 
   const handleDownloadInvoice = async () => {
     setDownloadingInvoice(true);
@@ -156,13 +157,15 @@ const OrderConfirmation = () => {
               )}
             </div>
 
-            {invoiceError && <p className="text-red-600 text-sm mb-3">{invoiceError}</p>}
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <button onClick={handleDownloadInvoice} disabled={downloadingInvoice}
-                className="text-sm font-semibold text-accent hover:underline">
-                {downloadingInvoice ? 'Preparing PDF…' : '⬇ Download Invoice'}
-              </button>
-            </div>
+            {isAuthenticatedOrder && invoiceError && <p className="text-red-600 text-sm mb-3">{invoiceError}</p>}
+            {isAuthenticatedOrder && (
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <button onClick={handleDownloadInvoice} disabled={downloadingInvoice}
+                  className="text-sm font-semibold text-accent hover:underline">
+                  {downloadingInvoice ? 'Preparing PDF…' : '⬇ Download Invoice'}
+                </button>
+              </div>
+            )}
             <div className="flex flex-col sm:flex-row gap-3 justify-center mt-4">
               <Link to="/shop"><Button variant="secondary">Continue Shopping</Button></Link>
               <Link to="/orders"><Button>View My Orders</Button></Link>

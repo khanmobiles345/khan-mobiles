@@ -56,8 +56,8 @@ const AppRoutes = () => (
       <Route path="/product/:id"        element={<ProductDetail />} />
       <Route path="/categories"         element={<Categories />} />
       <Route path="/cart"               element={<Cart />} />
-      <Route path="/checkout"           element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
-      <Route path="/order-confirmation" element={<ProtectedRoute><OrderConfirmation /></ProtectedRoute>} />
+      <Route path="/checkout"           element={<Checkout />} />
+      <Route path="/order-confirmation" element={<OrderConfirmation />} />
       <Route path="/orders"             element={<ProtectedRoute><MyOrders /></ProtectedRoute>} />
       <Route path="/about"              element={<About />} />
       <Route path="/contact"            element={<Contact />} />

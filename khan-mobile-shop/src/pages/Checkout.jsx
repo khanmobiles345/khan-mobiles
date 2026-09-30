@@ -40,10 +40,18 @@ const Checkout = () => {
 
     trackTikTokInitiateCheckout(items, Number(total));
 
-    // Fire exactly once for this checkout session, even if cart state
-    // re-renders or changes while the checkout form is being completed.
+    // Fire Meta InitiateCheckout once for this checkout instance. Cart edits
+    // can re-render this component, but they should not create new checkout
+    // starts for the same order attempt.
     const checkoutId = `checkout-${idempotencyKey}`;
-    trackMetaInitiateCheckout(items, Number(total), checkoutId);
+    const storageKey = `khan-meta-initiate-checkout-${idempotencyKey}`;
+    try {
+      if (sessionStorage.getItem(storageKey)) return;
+      const sent = trackMetaInitiateCheckout(items, Number(total), checkoutId);
+      if (sent) sessionStorage.setItem(storageKey, '1');
+    } catch {
+      trackMetaInitiateCheckout(items, Number(total), checkoutId);
+    }
   }, [items, total, idempotencyKey]);
 
   const handleResendVerification = async () => {

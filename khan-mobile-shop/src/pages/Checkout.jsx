@@ -7,7 +7,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Container from '../components/Container';
 import Button from '../components/Button';
-import { trackTikTokInitiateCheckout, trackMetaInitiateCheckout } from '../services/metaPixel';
+import { trackTikTokInitiateCheckout, trackMetaInitiateCheckout, getMetaTrackingContext } from '../services/metaPixel';
 
 const CITIES = ['Lahore', 'Karachi', 'Islamabad', 'Rawalpindi', 'Faisalabad', 'Multan', 'Peshawar', 'Quetta'];
 

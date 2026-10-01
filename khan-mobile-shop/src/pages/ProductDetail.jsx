@@ -11,7 +11,7 @@ import Container from '../components/Container';
 import Button from '../components/Button';
 import Badge from '../components/Badge';
 import ProductCard from '../components/ProductCard';
-import { trackTikTokViewContent, trackTikTokAddToCart, trackTikTokInitiateCheckout, trackMetaViewContent, trackMetaAddToCart } from '../services/metaPixel';
+import { trackTikTokViewContent, trackTikTokAddToCart, trackMetaViewContent, trackMetaAddToCart } from '../services/metaPixel';
 import { trackGA4ViewItem, trackGA4AddToCart } from '../services/analytics';
 
 const badgeVariantMap = { New: 'accent', Hot: 'warning', Sale: 'warning', Bestseller: 'success' };
@@ -243,7 +243,6 @@ const ProductDetail = () => {
 
   const handleBuyNow = () => {
     addItem(product, quantity);
-    trackTikTokInitiateCheckout([product], Number(product.price) * Number(quantity));
     navigate('/checkout');
   };
 

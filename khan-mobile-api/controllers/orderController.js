@@ -22,12 +22,6 @@ const courierPayload = (courier) => courier ? {
 const roundMoney = (value) => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
 const createGuestInvoiceToken = () => crypto.randomBytes(32).toString('hex');
 const hashGuestInvoiceToken = (token) => crypto.createHash('sha256').update(String(token)).digest('hex');
-const guestInvoiceTokenForOrder = (order) => {
-  if (order.user) return undefined;
-  // Legacy guest orders may not expose the original token after creation.
-  // New duplicate requests should be rejected rather than returning an unusable invoice link.
-  return undefined;
-};
 
 exports.create = async (req, res) => {
   const {
@@ -56,6 +50,11 @@ exports.create = async (req, res) => {
   if (idempotencyKey) {
     const existing = await Order.findOne(req.user ? { idempotencyKey, user: req.user._id } : { idempotencyKey, user: null, email: email.trim().toLowerCase() });
     if (existing) {
+      const retryInvoiceToken = !existing.user ? createGuestInvoiceToken() : null;
+      if (retryInvoiceToken) {
+        existing.guestInvoiceTokenHash = hashGuestInvoiceToken(retryInvoiceToken);
+        await existing.save();
+      }
       const existingPayload = {
         orderId: existing._id.toString(),
         orderNumber: existing.orderNumber,
@@ -76,6 +75,7 @@ exports.create = async (req, res) => {
         address: existing.address,
         landmark: existing.landmark,
         city: existing.city,
+        invoiceToken: retryInvoiceToken || undefined,
         placedAt: existing.createdAt.toISOString(),
       };
 
@@ -209,6 +209,11 @@ exports.create = async (req, res) => {
     if (err?.code === 11000 && idempotencyKey) {
       const existing = await Order.findOne(req.user ? { idempotencyKey, user: req.user._id } : { idempotencyKey, user: null, email: email.trim().toLowerCase() });
       if (existing) {
+        const retryInvoiceToken = !existing.user ? createGuestInvoiceToken() : null;
+        if (retryInvoiceToken) {
+          existing.guestInvoiceTokenHash = hashGuestInvoiceToken(retryInvoiceToken);
+          await existing.save();
+        }
         return res.status(200).json({
           success: true,
           duplicate: true,
@@ -232,6 +237,7 @@ exports.create = async (req, res) => {
             address: existing.address,
             landmark: existing.landmark,
             city: existing.city,
+            invoiceToken: retryInvoiceToken || undefined,
             placedAt: existing.createdAt.toISOString(),
           },
         });

@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 import Container from '../components/Container';
 import Button from '../components/Button';
 import { trackTikTokPurchase, trackMetaPurchase } from '../services/metaPixel';
+import { trackGA4Purchase } from '../services/analytics';
 import { useAuth } from '../context/AuthContext';
 
 const OrderConfirmation = () => {
@@ -66,6 +67,14 @@ const OrderConfirmation = () => {
       }
     } catch {
       /* tracking/storage failures must never affect order confirmation */
+    }
+
+    // GA4 purchase uses transaction_id, so repeated confirmation renders are
+    // de-duplicated by the transaction ID in GA4.
+    try {
+      trackGA4Purchase(order);
+    } catch {
+      /* tracking must never affect order confirmation */
     }
 
     // TikTok has its own once-per-session guard inside trackTikTokPurchase().

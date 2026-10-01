@@ -32,13 +32,11 @@ export const trackGA4PageView = (pagePath) => {
       page_path: key,
       send_to: GA4_MEASUREMENT_ID,
     });
-    sentPurchaseIds.add(purchaseKey);
     return true;
   } catch {
     return false;
   }
 };
-
 const money = (value) => {
   const n = typeof value === 'string' ? Number(value.replace(/[^0-9.-]/g, '')) : Number(value);
   return Number.isFinite(n) ? Math.round(Math.max(n, 0) * 100) / 100 : 0;
@@ -142,6 +140,7 @@ export const trackGA4Purchase = (order) => {
       })),
       send_to: GA4_MEASUREMENT_ID,
     });
+    sentPurchaseIds.add(purchaseKey);
     return true;
   } catch {
     return false;

@@ -12,6 +12,7 @@ import Button from '../components/Button';
 import Badge from '../components/Badge';
 import ProductCard from '../components/ProductCard';
 import { trackTikTokViewContent, trackTikTokAddToCart, trackTikTokInitiateCheckout, trackMetaViewContent, trackMetaAddToCart } from '../services/metaPixel';
+import { trackGA4ViewItem, trackGA4AddToCart } from '../services/analytics';
 
 const badgeVariantMap = { New: 'accent', Hot: 'warning', Sale: 'warning', Bestseller: 'success' };
 
@@ -147,6 +148,7 @@ const ProductDetail = () => {
     if (!product) return;
     try { trackTikTokViewContent(product); } catch { /* tracking must never break rendering */ }
     try { trackMetaViewContent(product); } catch { /* Meta tracking must never break rendering */ }
+    try { trackGA4ViewItem(product); } catch { /* GA4 tracking must never break rendering */ }
   }, [product]);
 
   if (loading) {
@@ -236,6 +238,7 @@ const ProductDetail = () => {
       actionId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
     }
     trackMetaAddToCart(product, quantity, actionId);
+    try { trackGA4AddToCart(product, quantity); } catch { /* GA4 tracking must never break rendering */ }
   };
 
   const handleBuyNow = () => {

@@ -4,7 +4,8 @@ import PropTypes from 'prop-types';
 import Badge from './Badge';
 import Button from './Button';
 import { useCart } from '../context/CartContext';
-import { trackMetaAddToCart } from '../services/metaPixel';
+import { trackMetaAddToCart, trackTikTokAddToCart } from '../services/metaPixel';
+import { trackGA4AddToCart } from '../services/analytics';
 
 const StarRating = ({ rating, reviewCount }) => (
   <div className="flex items-center gap-1">
@@ -49,18 +50,9 @@ const ProductCard = ({ id, name, price, compareAtPrice, category, rating, review
     e.preventDefault();
     e.stopPropagation();
     addItem({ id, name, price, category, bgGradient, imageUrl });
-    window.ttq?.track('AddToCart', {
-      contents: [{
-        content_id: String(id),
-        content_name: name,
-        content_type: 'product',
-        quantity: 1,
-        price: Number(price),
-      }],
-      content_type: 'product',
-      value: Number(price),
-      currency: 'PKR',
-    });
+    // Keep TikTok, Meta and GA4 AddToCart aligned with the same real user action.
+    trackTikTokAddToCart({ id, name, price }, 1);
+    trackGA4AddToCart({ id, name, price, category }, 1);
 
     // Keep Meta AddToCart consistent with the Product Detail page.
     // Generate one action id per real click so duplicate handler calls can be deduplicated.

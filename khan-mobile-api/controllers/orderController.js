@@ -22,6 +22,12 @@ const courierPayload = (courier) => courier ? {
 const roundMoney = (value) => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
 const createGuestInvoiceToken = () => crypto.randomBytes(32).toString('hex');
 const hashGuestInvoiceToken = (token) => crypto.createHash('sha256').update(String(token)).digest('hex');
+const guestInvoiceTokenForOrder = (order) => {
+  if (order.user) return undefined;
+  // Legacy guest orders may not expose the original token after creation.
+  // New duplicate requests should be rejected rather than returning an unusable invoice link.
+  return undefined;
+};
 
 exports.create = async (req, res) => {
   const {
@@ -67,6 +73,8 @@ exports.create = async (req, res) => {
         fullName: existing.fullName,
         email: existing.email,
         phone: existing.phone,
+        address: existing.address,
+        landmark: existing.landmark,
         city: existing.city,
         placedAt: existing.createdAt.toISOString(),
       };
@@ -180,6 +188,8 @@ exports.create = async (req, res) => {
       fullName: orderDoc.fullName,
       email: orderDoc.email,
       phone: orderDoc.phone,
+      address: orderDoc.address,
+      landmark: orderDoc.landmark,
       city: orderDoc.city,
       invoiceToken: guestInvoiceToken || undefined,
       placedAt: orderDoc.createdAt.toISOString(),
@@ -219,8 +229,9 @@ exports.create = async (req, res) => {
             fullName: existing.fullName,
             email: existing.email,
             phone: existing.phone,
+            address: existing.address,
+            landmark: existing.landmark,
             city: existing.city,
-            invoiceToken: req.user ? undefined : undefined,
             placedAt: existing.createdAt.toISOString(),
           },
         });

@@ -10,18 +10,29 @@ const isReady = () =>
   typeof window !== 'undefined' &&
   typeof window.gtag === 'function';
 
+const lastPageViewKey = { value: null };
+const sentCheckoutKeys = new Set();
+const sentPurchaseIds = new Set();
+
 export const initializeGA4 = () => isReady();
 
 export const trackGA4PageView = (pagePath) => {
   if (!isReady()) return false;
 
+  const key = pagePath || window.location.pathname;
+  // React StrictMode runs effects twice in development. Ignore only the
+  // immediate duplicate while still allowing a later return to the same page.
+  if (lastPageViewKey.value === key) return false;
+  lastPageViewKey.value = key;
+
   try {
     window.gtag('event', 'page_view', {
       page_title: document.title,
       page_location: window.location.href,
-      page_path: pagePath || window.location.pathname,
+      page_path: key,
       send_to: GA4_MEASUREMENT_ID,
     });
+    sentPurchaseIds.add(purchaseKey);
     return true;
   } catch {
     return false;
@@ -80,6 +91,13 @@ export const trackGA4AddToCart = (product, quantity = 1) => {
 
 export const trackGA4BeginCheckout = (items, total) => {
   if (!isReady() || !Array.isArray(items) || !items.length) return false;
+
+  const checkoutKey = JSON.stringify({
+    items: items.map((item) => [String(item.id || item.productId), Number(item.quantity) || 0, money(item.price)]),
+    total: money(total),
+  });
+  if (sentCheckoutKeys.has(checkoutKey)) return false;
+
   try {
     window.gtag('event', 'begin_checkout', {
       currency: 'PKR',
@@ -94,6 +112,7 @@ export const trackGA4BeginCheckout = (items, total) => {
       })),
       send_to: GA4_MEASUREMENT_ID,
     });
+    sentCheckoutKeys.add(checkoutKey);
     return true;
   } catch {
     return false;
@@ -104,6 +123,9 @@ export const trackGA4Purchase = (order) => {
   if (!isReady() || !order) return false;
   const transactionId = order.orderId || order.orderNumber;
   if (!transactionId) return false;
+
+  const purchaseKey = String(transactionId);
+  if (sentPurchaseIds.has(purchaseKey)) return false;
 
   try {
     window.gtag('event', 'purchase', {

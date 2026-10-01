@@ -9,6 +9,7 @@ import Footer from '../components/Footer';
 import Container from '../components/Container';
 import Button from '../components/Button';
 import { trackTikTokInitiateCheckout, trackMetaInitiateCheckout, getMetaTrackingContext } from '../services/metaPixel';
+import { trackGA4BeginCheckout } from '../services/analytics';
 
 // Major and commonly served cities across Pakistan. The 2023 census identifies 127 cities
 // with populations above 100,000; this list covers those major urban centers plus
@@ -75,6 +76,7 @@ const Checkout = () => {
     if (!items.length) return;
 
     trackTikTokInitiateCheckout(items, Number(total));
+    try { trackGA4BeginCheckout(items, Number(total)); } catch { /* GA4 tracking must never break checkout */ }
 
     // Fire Meta InitiateCheckout once for this checkout instance. Cart edits
     // can re-render this component, but they should not create new checkout

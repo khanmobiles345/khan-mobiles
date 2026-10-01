@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#111827">
+<link rel="manifest" href="./manifest.json">
+<link rel="stylesheet" href="./styles.css">
+<title>Khan Mobiles — Shop Management</title>
+</head>
+<body>
+<div id="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">KM</div><div><b>Khan Mobiles</b><small>Shop Management</small></div></div>
+    <nav id="nav">
+      <button data-page="dashboard" class="active">Dashboard</button>
+      <button data-page="pos">POS / Sale</button>
+      <button data-page="products">Products & Stock</button>
+      <button data-page="purchases">Purchases</button>
+      <button data-page="customers">Customers / Ledger</button>
+      <button data-page="vendors">Vendors / Ledger</button>
+      <button data-page="cash">Cash In / Out</button>
+      <button data-page="expenses">Expenses</button>
+      <button data-page="reports">Reports</button>
+      <button data-page="settings">Settings</button>
+    </nav>
+    <div class="offline"><span id="statusDot"></span><span id="statusText">Offline-ready</span></div>
+  </aside>
+  <main class="main">
+    <header class="topbar"><div><h1 id="pageTitle">Dashboard</h1><p id="today"></p></div><div class="actions"><button class="btn" id="backupBtn">Backup</button><button class="btn" id="printBtn">Print</button></div></header>
+    <section id="content"></section>
+  </main>
+</div>
+<div id="toast"></div>
+<div id="modal" class="modal hidden"></div>
+<script src="./app.js"></script>
+</body>
+</html>

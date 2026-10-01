@@ -95,7 +95,7 @@ const OrderConfirmation = () => {
     );
   }
 
-  const { orderId, items, total, customer, placedAt } = order;
+  const { orderId, orderNumber, items, total, fullName, email, phone, address, landmark, city, placedAt } = order;
   const estDelivery = new Date(new Date(placedAt).getTime() + 4 * 24 * 60 * 60 * 1000);
 
   return (
@@ -116,15 +116,15 @@ const OrderConfirmation = () => {
 
             <h1 className="text-3xl md:text-4xl font-extrabold mb-3">Order Placed Successfully!</h1>
             <p className="text-slate-500 mb-8">
-              Thank you{customer?.fullName ? `, ${customer.fullName.split(' ')[0]}` : ''}! A confirmation has been sent to{' '}
-              <span className="text-slate-900">{customer?.email}</span>.
+              Thank you{fullName ? `, ${fullName.split(' ')[0]}` : ''}! A confirmation has been sent to{' '}
+              <span className="text-slate-900">{email || 'your email address'}</span>.
             </p>
 
             <div className="bg-navy-800 rounded-xl2 p-6 text-left mb-8">
               <div className="flex flex-wrap items-center justify-between gap-2 mb-5 pb-5 border-b border-navy-700">
                 <div>
                   <p className="text-xs text-slate-500">Order Number</p>
-                  <p className="text-lg font-bold text-accent">{orderId}</p>
+                  <p className="text-lg font-bold text-accent">{orderNumber || orderId}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-xs text-slate-500">Estimated Delivery</p>
@@ -154,14 +154,14 @@ const OrderConfirmation = () => {
                 <span>Rs. {total.toLocaleString('en-PK')}</span>
               </div>
 
-              {customer?.address && (
+              {address && (
                 <p className="text-xs text-slate-500 mt-5 pt-5 border-t border-navy-700">
-                  📍 Delivering to: {customer.address}{customer.landmark ? ` · Landmark: ${customer.landmark}` : ''}, {customer.city}
+                  📍 Delivering to: {address}{landmark ? ` · Landmark: ${landmark}` : ''}, {city}
                 </p>
               )}
             </div>
 
-            {isAuthenticatedOrder && invoiceError && <p className="text-red-600 text-sm mb-3">{invoiceError}</p>}
+            {invoiceError && <p className="text-red-600 text-sm mb-3">{invoiceError}</p>}
             {(isAuthenticatedOrder || invoiceToken) && (
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <button onClick={handleDownloadInvoice} disabled={downloadingInvoice}

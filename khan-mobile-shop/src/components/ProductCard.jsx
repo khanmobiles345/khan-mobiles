@@ -1,10 +1,9 @@
 import { motion } from 'framer-motion';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Badge from './Badge';
 import Button from './Button';
 import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
 import { trackMetaAddToCart } from '../services/metaPixel';
 
 const StarRating = ({ rating, reviewCount }) => (
@@ -39,13 +38,9 @@ const cardVars = {
 // Always-visible Add to Cart button (not hover-dependent) so the card works
 // the same on touch devices as it does with a mouse. Shows a real product
 // photo when the admin has uploaded one, falling back to the gradient swatch.
-// Adding to cart requires being logged in — guests are sent to /login and
-// bounced right back here once they've signed in.
+// Guests can add products directly to the cart and continue to checkout.
 const ProductCard = ({ id, name, price, compareAtPrice, category, rating, reviewCount, badge, bgGradient, imageUrl }) => {
   const { addItem } = useCart();
-  const { isAuthenticated } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
 
   const onSale = compareAtPrice && compareAtPrice > price;
   const discountPct = onSale ? Math.round(((compareAtPrice - price) / compareAtPrice) * 100) : 0;
@@ -53,10 +48,6 @@ const ProductCard = ({ id, name, price, compareAtPrice, category, rating, review
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!isAuthenticated) {
-      navigate(`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`);
-      return;
-    }
     addItem({ id, name, price, category, bgGradient, imageUrl });
     window.ttq?.track('AddToCart', {
       contents: [{

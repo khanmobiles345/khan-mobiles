@@ -79,9 +79,13 @@ exports.create = async (req, res) => {
         placedAt: existing.createdAt.toISOString(),
       };
 
-      sendMetaPurchase({ order: existingPayload, req, trackingContext: metaTrackingContext }).catch((err) => {
-        console.error('[meta-capi] Purchase retry failed:', err.message);
-      });
+      if (!existing.metaPurchaseSentAt) {
+        sendMetaPurchase({ order: existingPayload, req, trackingContext: metaTrackingContext })
+          .then(() => Order.updateOne({ _id: existing._id, metaPurchaseSentAt: null }, { $set: { metaPurchaseSentAt: new Date() } }))
+          .catch((err) => {
+            console.error('[meta-capi] Purchase retry failed:', err.message);
+          });
+      }
 
       return res.status(200).json({
         success: true,
@@ -200,9 +204,12 @@ exports.create = async (req, res) => {
     // Server-side Purchase is independent of the confirmation-page render.
     // It uses the same event_id as the browser Pixel event so Meta can deduplicate
     // the two copies instead of counting the same order twice.
-    sendMetaPurchase({ order: orderPayload, req, trackingContext: metaTrackingContext }).catch((err) => {
-      console.error('[meta-capi] Purchase failed:', err.message);
-    });
+    sendMetaPurchase({ order: orderPayload, req, trackingContext: metaTrackingContext })
+      .then(() => Order.updateOne({ _id: orderDoc._id, metaPurchaseSentAt: null }, { $set: { metaPurchaseSentAt: new Date() } }))
+      .catch((err) => {
+        // Tracking failure must never fail or delay the customer's order.
+        console.error('[meta-capi] Purchase failed:', err.message);
+      });
 
     res.status(201).json({ success: true, order: orderPayload });
   } catch (err) {
@@ -214,11 +221,8 @@ exports.create = async (req, res) => {
           existing.guestInvoiceTokenHash = hashGuestInvoiceToken(retryInvoiceToken);
           await existing.save();
         }
-        return res.status(200).json({
-          success: true,
-          duplicate: true,
-          order: {
-            orderId: existing._id.toString(),
+        const duplicatePayload = {
+          orderId: existing._id.toString(),
             orderNumber: existing.orderNumber,
             subtotal: Number(existing.subtotal),
             discount: Number(existing.discount),
@@ -240,6 +244,18 @@ exports.create = async (req, res) => {
             invoiceToken: retryInvoiceToken || undefined,
             placedAt: existing.createdAt.toISOString(),
           },
+        };
+
+        if (!existing.metaPurchaseSentAt) {
+          sendMetaPurchase({ order: duplicatePayload, req, trackingContext: metaTrackingContext })
+            .then(() => Order.updateOne({ _id: existing._id, metaPurchaseSentAt: null }, { $set: { metaPurchaseSentAt: new Date() } }))
+            .catch((metaErr) => console.error('[meta-capi] Purchase duplicate retry failed:', metaErr.message));
+        }
+
+        return res.status(200).json({
+          success: true,
+          duplicate: true,
+          order: duplicatePayload,
         });
       }
     }

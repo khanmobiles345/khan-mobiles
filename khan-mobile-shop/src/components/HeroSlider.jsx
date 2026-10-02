@@ -56,7 +56,7 @@ const HeroSlider = () => {
   }}
 />
 
-{/* Sharp foreground image, fully visible, never cropped */}
+{/* Sharp foreground image, fitted to the full hero area */}
 <motion.div
   key={`bg-${current}`}
   className="absolute inset-0"

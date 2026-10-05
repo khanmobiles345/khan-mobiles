@@ -6,10 +6,16 @@ import Button from './Button';
 import Container from './Container';
 
 const SLIDE_DURATION = 5000;
+const FEATURED_PRODUCT_NAMES = [
+  'HOTTU TS06 ANC TWS Wireless Earbuds – 36H Playtime with ENC & Active Noise Cancellation',
+  'Smart Watch Series X – Bluetooth Calling Smart Watch',
+  'HOTTU BH03 Bluetooth Headphone – Wireless (16 Hours Playtime) with Micro SD & AUX',
+];
+
 const FALLBACK_PRODUCTS = [
-  { id: 'fallback-earbuds', name: 'Premium Earbuds', category: 'Earbuds', imageUrl: '/images/airbuds.png', accentColor: '#22c55e' },
-  { id: 'fallback-earphones', name: 'Wireless Earphones', category: 'Earphones', imageUrl: '/images/eirbuds2.png', accentColor: '#0EA5E9' },
-  { id: 'fallback-headphones', name: 'Premium Headphones', category: 'Headphones', imageUrl: '/images/headphone.png', accentColor: '#a855f7' },
+  { id: 'fallback-ts06', name: FEATURED_PRODUCT_NAMES[0], category: 'Earbuds', imageUrl: '/images/airbuds.png', accentColor: '#22c55e' },
+  { id: 'fallback-watch-x', name: FEATURED_PRODUCT_NAMES[1], category: 'Smartwatches', imageUrl: '/images/watch.png', accentColor: '#0EA5E9' },
+  { id: 'fallback-bh03', name: FEATURED_PRODUCT_NAMES[2], category: 'Headphones', imageUrl: '/images/headphone.png', accentColor: '#a855f7' },
 ];
 
 const slideVariants = {
@@ -144,21 +150,15 @@ const HeroSlider = () => {
       .then((data) => {
         if (cancelled || !Array.isArray(data?.products)) return;
 
-        const preferred = data.products
-          .filter((p) => /earbuds?|earphones?|headphones?/i.test(`${p.category || ''} ${p.name || ''}`))
-          .filter((p) => getProductImage(p))
-          .sort((a, b) => {
-            const aSale = Number(a.compareAtPrice) > Number(a.price) ? 1 : 0;
-            const bSale = Number(b.compareAtPrice) > Number(b.price) ? 1 : 0;
-            return bSale - aSale || Number(b.rating || 0) - Number(a.rating || 0);
-          })
-          .slice(0, 3)
-          .map((p, index) => ({
-            ...p,
-            accentColor: ['#22c55e', '#0EA5E9', '#a855f7'][index],
-          }));
+        // Keep the hero focused on these exact three products, in this order.
+        const preferred = FEATURED_PRODUCT_NAMES.map((name, index) => {
+          const product = data.products.find((p) => String(p.name || '').trim() === name);
+          return product && getProductImage(product)
+            ? { ...product, accentColor: ['#22c55e', '#0EA5E9', '#a855f7'][index] }
+            : FALLBACK_PRODUCTS[index];
+        });
 
-        if (preferred.length >= 3) setProducts(preferred);
+        setProducts(preferred);
       })
       .catch(() => {
         // Keep the verified local image fallbacks if the API is unavailable.
@@ -167,7 +167,7 @@ const HeroSlider = () => {
     return () => { cancelled = true; };
   }, []);
 
-  const slides = [{ type: 'offer', id: 'offer-50' }, ...products];
+  const slides = products.map((product) => ({ ...product, type: 'product' }));
 
   const startTimer = useCallback(() => {
     clearInterval(timerRef.current);
@@ -207,7 +207,7 @@ const HeroSlider = () => {
           transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
           className="absolute inset-0"
         >
-          {slide.type === 'offer' ? <OfferSlide /> : <ProductSlide product={slide} />}
+          <ProductSlide product={slide} />
         </motion.div>
       </AnimatePresence>
 

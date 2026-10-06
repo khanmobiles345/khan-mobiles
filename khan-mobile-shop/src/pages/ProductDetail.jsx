@@ -242,6 +242,7 @@ const ProductDetail = () => {
   };
 
   const handleBuyNow = () => {
+    if (safeStock < 1) return;
     addItem(product, quantity);
     navigate('/checkout');
   };
@@ -284,12 +285,30 @@ const ProductDetail = () => {
                   }
                 }}
                 initial={{ opacity: 0.6 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}
-                className={`relative rounded-xl3 overflow-hidden h-80 md:h-[28rem] bg-cover bg-center ${gallery.length > 1 ? 'touch-pan-y cursor-grab active:cursor-grabbing' : ''}`}
-                style={activeImage ? { backgroundImage: `url(${activeImage})` } : { background: bgGradient }}
+                className={`relative rounded-xl3 overflow-hidden h-80 md:h-[28rem] bg-slate-50 ${gallery.length > 1 ? 'touch-pan-y cursor-grab active:cursor-grabbing' : ''}`}
               >
-                <div className="absolute top-5 left-5 flex flex-col gap-2 items-start">
+                {activeImage ? (
+                  <img
+                    src={activeImage}
+                    alt={name}
+                    width="1200"
+                    height="960"
+                    fetchPriority="high"
+                    decoding="async"
+                    className="absolute inset-0 w-full h-full object-contain p-4 md:p-8"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  />
+                ) : (
+                  <div className="absolute inset-0" style={{ background: bgGradient }} aria-hidden="true" />
+                )}
+                <div className="absolute top-5 left-5 z-10 flex flex-col gap-2 items-start">
                   {badge && <Badge variant={badgeVariantMap[badge] || 'accent'}>{badge}</Badge>}
                   {onSale && <Badge variant="warning">-{discountPct}% OFF</Badge>}
+                  {brand?.toLowerCase() === 'hottu' && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-white/95 px-3 py-1.5 text-xs font-bold text-slate-800 shadow-sm">
+                      🛡️ 1 YEAR WARRANTY
+                    </span>
+                  )}
                 </div>
               </motion.div>
 
@@ -313,11 +332,20 @@ const ProductDetail = () => {
                       key={img.id}
                       onClick={() => setActiveImageIndex(i)}
                       aria-label={`View image ${i + 1}`}
-                      className={`w-16 h-16 rounded-xl2 overflow-hidden bg-cover bg-center border-2 transition-colors shrink-0 ${
+                      className={`w-16 h-16 rounded-xl2 overflow-hidden bg-slate-50 border-2 transition-colors shrink-0 p-1 ${
                         i === activeImageIndex ? 'border-accent' : 'border-transparent opacity-70 hover:opacity-100'
                       }`}
-                      style={{ backgroundImage: `url(${img.url})` }}
-                    />
+                    >
+                      <img
+                        src={img.url}
+                        alt={`${name} image ${i + 1}`}
+                        width="96"
+                        height="96"
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-contain"
+                      />
+                    </button>
                   ))}
                 </div>
               )}
@@ -345,9 +373,28 @@ const ProductDetail = () => {
                 {description || `The ${name} from ${brand} combines premium build quality with everyday reliability.`}
               </p>
 
-              <p className={`text-sm font-medium mb-8 ${safeStock === 0 ? 'text-red-600' : safeStock < 10 ? 'text-orange-600' : 'text-green-600'}`}>
-                {stock === 0 ? '✕ Out of stock' : stock < 10 ? `⚠ Only ${stock} left in stock` : '✓ In stock'}
+              <p className={`text-sm font-medium mb-5 ${safeStock === 0 ? 'text-red-600' : safeStock < 10 ? 'text-orange-600' : 'text-green-600'}`}>
+                {safeStock === 0 ? '✕ Out of stock' : safeStock < 10 ? `⚠ Only ${safeStock} left in stock` : '✓ In stock'}
               </p>
+
+              <div className="grid grid-cols-2 gap-2 mb-7">
+                <div className="rounded-xl2 border border-navy-700 bg-navy-800 px-3 py-2.5">
+                  <p className="text-xs font-bold text-slate-800">🚚 Fast Delivery</p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">Across Pakistan</p>
+                </div>
+                <div className="rounded-xl2 border border-navy-700 bg-navy-800 px-3 py-2.5">
+                  <p className="text-xs font-bold text-slate-800">💵 Cash on Delivery</p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">Available at checkout</p>
+                </div>
+                <div className="rounded-xl2 border border-navy-700 bg-navy-800 px-3 py-2.5">
+                  <p className="text-xs font-bold text-slate-800">🔒 Secure Checkout</p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">Protected payment flow</p>
+                </div>
+                <div className="rounded-xl2 border border-navy-700 bg-navy-800 px-3 py-2.5">
+                  <p className="text-xs font-bold text-slate-800">🛡️ Quality Checked</p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">${brand?.toLowerCase() === 'hottu' ? '1-year warranty' : 'Before dispatch'}</p>
+                </div>
+              </div>
 
               {compatibleModels?.length > 0 && (
                 <div className="mb-8">
@@ -383,27 +430,8 @@ const ProductDetail = () => {
                 </p>
               )}
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-10 pt-8 border-t border-navy-700 text-center">
-                <div>
-                  <span className="text-2xl block mb-1">🚚</span>
-                  <p className="text-xs text-slate-500">Free delivery across Pakistan</p>
-                </div>
-                <div>
-                  <span className="text-2xl block mb-1">↩️</span>
-                  <p className="text-xs text-slate-500">7-day easy returns</p>
-                </div>
-                <div>
-                  <span className="text-2xl block mb-1">🔒</span>
-                  <p className="text-xs text-slate-500">Secure checkout</p>
-                </div>
-                <div>
-                  <span className="text-2xl block mb-1">🛡️</span>
-                  <p className="text-xs text-slate-500">{brand?.toLowerCase() === 'hottu' ? '1-year warranty' : 'Quality checked'}</p>
-                </div>
-              </div>
-
-              <div className="mt-4 text-center">
-                <p className="text-xs text-slate-500">Cash on Delivery available</p>
+              <div className="mt-8 pt-6 border-t border-navy-700 text-center">
+                <p className="text-xs text-slate-500">Need help before ordering? Contact us through the store support options.</p>
               </div>
             </motion.div>
           </div>

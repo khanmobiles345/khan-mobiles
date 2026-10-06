@@ -146,7 +146,7 @@ const AdminProductForm = () => {
   return (
     <>
       <Navbar />
-      <main className="pt-16 min-h-screen">
+      <main className="pt-16 min-h-screen bg-slate-50">
         <Container>
           <div className="py-10 max-w-3xl mx-auto">
             <Link to="/admin" className="text-sm text-slate-500 hover:text-accent transition-colors mb-4 inline-block">
@@ -157,7 +157,7 @@ const AdminProductForm = () => {
             <motion.form
               initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
               onSubmit={handleSubmit}
-              className="bg-navy-800 rounded-xl2 p-6 md:p-8 space-y-6"
+              className="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 space-y-6 shadow-sm"
             >
               {/* Images */}
               <div>
@@ -169,7 +169,7 @@ const AdminProductForm = () => {
                   <AnimatePresence>
                     {existingImages.map((img) => (
                       <motion.div key={img.id} exit={{ opacity: 0, scale: 0.8 }}
-                        className="relative w-20 h-20 rounded-xl2 overflow-hidden border border-navy-700 group">
+                        className="relative w-20 h-20 rounded-xl2 overflow-hidden border border-slate-200 group">
                         <div className="w-full h-full bg-cover bg-center" style={{ backgroundImage: `url(${img.url})` }} />
                         <button type="button" onClick={() => removeExistingImage(img.id)} disabled={deletingImageId === img.id}
                           className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold">
@@ -191,7 +191,7 @@ const AdminProductForm = () => {
                   </AnimatePresence>
 
                   {totalImageCount === 0 && (
-                    <div className="w-20 h-20 rounded-xl2 border border-navy-700" style={{ background: 'linear-gradient(135deg, #1e293b, #334155)' }} />
+                    <div className="w-20 h-20 rounded-xl2 border border-slate-200" style={{ background: 'linear-gradient(135deg, #1e293b, #334155)' }} />
                   )}
                 </div>
 
@@ -208,14 +208,14 @@ const AdminProductForm = () => {
                 <div className="sm:col-span-2">
                   <label className="text-xs font-semibold text-slate-500 mb-1.5 block">Product Name</label>
                   <input required value={form.name} onChange={handleChange('name')}
-                    className="w-full bg-navy-700 border border-navy-700 focus:border-accent focus:outline-none rounded-xl2 px-4 py-3 text-slate-900 text-sm"
+                    className="w-full bg-white border border-slate-200 focus:border-accent focus:outline-none rounded-xl2 px-4 py-3 text-slate-900 text-sm"
                     placeholder="Premium Silicone Case" />
                 </div>
 
                 <div>
                   <label className="text-xs font-semibold text-slate-500 mb-1.5 block">Price (Rs.)</label>
                   <input required type="number" min="0" step="0.01" value={form.price} onChange={handleChange('price')}
-                    className="w-full bg-navy-700 border border-navy-700 focus:border-accent focus:outline-none rounded-xl2 px-4 py-3 text-slate-900 text-sm"
+                    className="w-full bg-white border border-slate-200 focus:border-accent focus:outline-none rounded-xl2 px-4 py-3 text-slate-900 text-sm"
                     placeholder="1299" />
                 </div>
 
@@ -224,21 +224,21 @@ const AdminProductForm = () => {
                     Compare-at Price <span className="text-slate-400 font-normal normal-case">(optional, shows a sale)</span>
                   </label>
                   <input type="number" min="0" step="0.01" value={form.compareAtPrice} onChange={handleChange('compareAtPrice')}
-                    className="w-full bg-navy-700 border border-navy-700 focus:border-accent focus:outline-none rounded-xl2 px-4 py-3 text-slate-900 text-sm"
+                    className="w-full bg-white border border-slate-200 focus:border-accent focus:outline-none rounded-xl2 px-4 py-3 text-slate-900 text-sm"
                     placeholder="e.g. 1599 (must be higher than price)" />
                 </div>
 
                 <div>
                   <label className="text-xs font-semibold text-slate-500 mb-1.5 block">Stock Quantity</label>
                   <input type="number" min="0" value={form.stock} onChange={handleChange('stock')}
-                    className="w-full bg-navy-700 border border-navy-700 focus:border-accent focus:outline-none rounded-xl2 px-4 py-3 text-slate-900 text-sm"
+                    className="w-full bg-white border border-slate-200 focus:border-accent focus:outline-none rounded-xl2 px-4 py-3 text-slate-900 text-sm"
                     placeholder="50" />
                 </div>
 
                 <div>
                   <label className="text-xs font-semibold text-slate-500 mb-1.5 block">Category</label>
                   <input required list="category-options" value={form.category} onChange={handleChange('category')}
-                    className="w-full bg-navy-700 border border-navy-700 focus:border-accent focus:outline-none rounded-xl2 px-4 py-3 text-slate-900 text-sm"
+                    className="w-full bg-white border border-slate-200 focus:border-accent focus:outline-none rounded-xl2 px-4 py-3 text-slate-900 text-sm"
                     placeholder="Cases" />
                   <datalist id="category-options">
                     {categories.map((c) => <option key={c} value={c} />)}
@@ -248,14 +248,14 @@ const AdminProductForm = () => {
                 <div>
                   <label className="text-xs font-semibold text-slate-500 mb-1.5 block">Brand</label>
                   <input required value={form.brand} onChange={handleChange('brand')}
-                    className="w-full bg-navy-700 border border-navy-700 focus:border-accent focus:outline-none rounded-xl2 px-4 py-3 text-slate-900 text-sm"
+                    className="w-full bg-white border border-slate-200 focus:border-accent focus:outline-none rounded-xl2 px-4 py-3 text-slate-900 text-sm"
                     placeholder="ProShield" />
                 </div>
 
                 <div>
                   <label className="text-xs font-semibold text-slate-500 mb-1.5 block">Badge</label>
                   <select value={form.badge} onChange={handleChange('badge')}
-                    className="w-full bg-navy-700 border border-navy-700 rounded-xl2 px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-accent">
+                    className="w-full bg-white border border-slate-200 rounded-xl2 px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-accent">
                     {BADGES.map((b) => <option key={b} value={b}>{b || 'None'}</option>)}
                   </select>
                 </div>
@@ -269,7 +269,7 @@ const AdminProductForm = () => {
                 <div className="sm:col-span-2">
                   <label className="text-xs font-semibold text-slate-500 mb-1.5 block">Compatible Phone Models</label>
                   <input value={form.compatibleModels} onChange={handleChange('compatibleModels')}
-                    className="w-full bg-navy-700 border border-navy-700 focus:border-accent focus:outline-none rounded-xl2 px-4 py-3 text-slate-900 text-sm"
+                    className="w-full bg-white border border-slate-200 focus:border-accent focus:outline-none rounded-xl2 px-4 py-3 text-slate-900 text-sm"
                     placeholder="iPhone 14, Samsung S23, Redmi Note 12" />
                   <p className="text-xs text-slate-500 mt-1">Comma-separated.</p>
                 </div>
@@ -277,7 +277,7 @@ const AdminProductForm = () => {
                 <div className="sm:col-span-2">
                   <label className="text-xs font-semibold text-slate-500 mb-1.5 block">Description</label>
                   <textarea rows={4} value={form.description} onChange={handleChange('description')}
-                    className="w-full bg-navy-700 border border-navy-700 focus:border-accent focus:outline-none rounded-xl2 px-4 py-3 text-slate-900 text-sm resize-none"
+                    className="w-full bg-white border border-slate-200 focus:border-accent focus:outline-none rounded-xl2 px-4 py-3 text-slate-900 text-sm resize-none"
                     placeholder="Short product description shown on the detail page." />
                 </div>
               </div>

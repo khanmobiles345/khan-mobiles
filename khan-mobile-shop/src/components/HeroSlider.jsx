@@ -1,22 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { api } from '../services/api';
-import Button from './Button';
-import Container from './Container';
 
 const SLIDE_DURATION = 5000;
-const FEATURED_PRODUCT_NAMES = [
-  'HOTTU TS06 ANC TWS Wireless Earbuds – 36H Playtime with ENC & Active Noise Cancellation',
-  'Smart Watch Series X – Bluetooth Calling Smart Watch',
-  'HOTTU BH03 Bluetooth Headphone – Wireless (16 Hours Playtime) with Micro SD & AUX',
-];
-
-const FALLBACK_PRODUCTS = [
-  { id: 'fallback-ts06', name: FEATURED_PRODUCT_NAMES[0], category: 'Earbuds', imageUrl: '/images/airbuds.png', accentColor: '#22c55e' },
-  { id: 'fallback-watch-x', name: FEATURED_PRODUCT_NAMES[1], category: 'Smartwatches', imageUrl: '/images/watch.png', accentColor: '#0EA5E9' },
-  { id: 'fallback-bh03', name: FEATURED_PRODUCT_NAMES[2], category: 'Headphones', imageUrl: '/images/headphone.png', accentColor: '#a855f7' },
-];
 
 const slideVariants = {
   enter: (dir) => ({ opacity: 0, x: dir > 0 ? 60 : -60 }),

@@ -74,10 +74,23 @@ const ProductCard = ({ id, name, price, compareAtPrice, category, rating, review
 
       <Link to={`/product/${id}`}>
         {/* Image */}
-        <div className="relative overflow-hidden h-52 bg-slate-50">
-          <motion.div variants={imageVariants} transition={{ duration: 0.3 }}
-            className="absolute inset-0 bg-cover bg-center"
-            style={imageUrl ? { backgroundImage: `url(${imageUrl})` } : { background: bgGradient }} />
+        <div className="relative overflow-hidden h-52 bg-slate-50"
+          style={!imageUrl ? { background: bgGradient } : undefined}>
+          {imageUrl && (
+            <motion.img
+              variants={imageVariants}
+              transition={{ duration: 0.3 }}
+              src={imageUrl}
+              alt={name}
+              loading="lazy"
+              decoding="async"
+              fetchPriority="low"
+              width="640"
+              height="416"
+              className="absolute inset-0 w-full h-full object-contain"
+              onError={(e) => { e.currentTarget.style.display = 'none'; }}
+            />
+          )}
           <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5 items-start">
             {badge && <Badge variant={badgeVariantMap[badge] || 'accent'}>{badge}</Badge>}
             {onSale && <Badge variant="warning">-{discountPct}%</Badge>}

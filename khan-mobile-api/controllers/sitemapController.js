@@ -2,7 +2,7 @@ const Product = require('../models/Product');
 
 // The frontend's public domain — sitemap URLs must point at the site
 // customers/Google actually visit, not this API's own domain.
-const SITE_URL = process.env.CLIENT_URL || 'http://localhost:5173';
+const SITE_URL = (process.env.CLIENT_URL || 'https://www.khanmobiles.store').replace(/\/$/, '');
 
 const STATIC_PAGES = ['', '/shop', '/categories', '/about', '/contact'];
 

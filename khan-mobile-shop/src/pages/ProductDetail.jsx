@@ -498,7 +498,7 @@ const ProductDetail = () => {
                 )}
               </div>
 
-              <p className="text-slate-500 leading-relaxed mb-4">
+              <p className="text-slate-500 leading-relaxed mb-4 line-clamp-3">
                 {description || curatedSeo?.description || `The ${name} from ${brand} combines premium build quality with everyday reliability.`}
               </p>
 
@@ -564,6 +564,18 @@ const ProductDetail = () => {
               </div>
             </motion.div>
           </div>
+
+          <section className="pb-14 pt-12 border-t border-slate-200">
+            <div className="max-w-4xl">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent mb-2">Product Details</p>
+              <h2 className="text-2xl md:text-3xl font-extrabold mb-5">Product Description</h2>
+              <div className="bg-white border border-slate-200 rounded-2xl p-5 md:p-7 shadow-sm">
+                <p className="text-slate-600 leading-7 whitespace-pre-line">
+                  {description || curatedSeo?.description || `The ${name} from ${brand} combines premium build quality with everyday reliability.`}
+                </p>
+              </div>
+            </div>
+          </section>
 
           <ReviewsSection productId={product.id} rating={rating} reviewCount={safeReviewCount} />
 

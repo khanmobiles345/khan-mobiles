@@ -22,6 +22,11 @@ const CURATED_PRODUCT_SEO = {
     description: 'Shop the PowerMax 65W GaN Fast Charger for Samsung S23/S22, iPhone 15, Redmi Note 12 and OnePlus 11. Rs. 2,499 with Cash on Delivery across Pakistan.',
     imageAlt: 'PowerMax 65W GaN Fast Charger for Samsung, iPhone, Redmi and OnePlus',
   },
+  'pro-wireless-earbuds': {
+    title: 'Pro Wireless Earbuds by SoundPro for iPhone & Samsung',
+    description: 'Shop SoundPro Pro Wireless Earbuds for iPhone 13/14/15 and Samsung S23/A54. Rs. 3,999 with Cash on Delivery across Pakistan.',
+    imageAlt: 'SoundPro Pro Wireless Earbuds for iPhone and Samsung',
+  },
 };
 
 const StarRating = ({ rating, size = 16 }) => (

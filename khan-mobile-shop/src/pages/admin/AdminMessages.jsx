@@ -53,7 +53,7 @@ const AdminMessages = () => {
   return (
     <>
       <Navbar />
-      <main className="pt-16 min-h-screen">
+      <main className="pt-16 min-h-screen bg-slate-50">
         <Container>
           <div className="py-10">
             <h1 className="text-3xl md:text-4xl font-extrabold mb-2">Messages</h1>
@@ -78,7 +78,7 @@ const AdminMessages = () => {
             <div className="space-y-3 pb-20">
               {messages.map((m) => (
                 <div key={m.id} onClick={() => handleExpand(m)}
-                  className={`bg-navy-800 rounded-xl2 p-5 cursor-pointer transition-colors ${!m.isRead ? 'border-l-4 border-accent' : ''}`}>
+                  className={`bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md cursor-pointer transition-colors ${!m.isRead ? 'border-l-4 border-accent' : ''}`}>
                   <div className="flex items-center justify-between gap-4">
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
@@ -97,7 +97,7 @@ const AdminMessages = () => {
                     </div>
                   </div>
                   {expandedId === m.id && (
-                    <div className="mt-4 pt-4 border-t border-navy-700">
+                    <div className="mt-4 pt-4 border-t border-slate-200">
                       {m.subject && <p className="text-sm font-semibold text-slate-900 mb-2">{m.subject}</p>}
                       <p className="text-sm text-slate-600 whitespace-pre-wrap">{m.message}</p>
                       <a href={`mailto:${m.email}`} onClick={(e) => e.stopPropagation()}

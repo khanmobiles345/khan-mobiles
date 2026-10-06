@@ -169,7 +169,7 @@ const Checkout = () => {
     const errs = {};
     if (!form.fullName.trim()) errs.fullName = 'Full name is required.';
     if (!form.email.trim() || !form.email.includes('@')) errs.email = 'A valid email is required.';
-    if (!/^[0-9+\s-]{7,15}$/.test(form.phone.trim())) errs.phone = 'A valid phone number is required.';
+    if (!/^(?:\+92|0)?3\d{9}$/.test(form.phone.replace(/[\s-]/g, ''))) errs.phone = 'Enter a valid Pakistani mobile number, e.g. 03001234567.';
     if (!form.address.trim()) errs.address = 'Delivery address is required.';
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -249,33 +249,59 @@ const Checkout = () => {
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-xs font-semibold text-slate-500 mb-1.5 block">Full Name</label>
-                    <input value={form.fullName} onChange={handleChange('fullName')}
-                      className="w-full bg-navy-700 border border-navy-700 focus:border-accent focus:outline-none rounded-xl2 px-4 py-3 text-slate-900 placeholder-slate-500 text-sm"
-                      placeholder="Ali Khan" />
+                    <input
+                    value={form.fullName}
+                    onChange={handleChange('fullName')}
+                    autoComplete="name"
+                    className="w-full bg-navy-700 border border-navy-700 focus:border-accent focus:outline-none rounded-xl2 px-4 py-3 text-slate-900 placeholder-slate-500 text-sm"
+                    placeholder="Ali Khan"
+                    required
+                  />
                     {errors.fullName && <p className="text-red-600 text-xs mt-1">{errors.fullName}</p>}
                   </div>
                   <div>
                     <label className="text-xs font-semibold text-slate-500 mb-1.5 block">Phone Number</label>
-                    <input value={form.phone} onChange={handleChange('phone')}
+                    <input
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
+                      value={form.phone}
+                      onChange={handleChange('phone')}
                       className="w-full bg-navy-700 border border-navy-700 focus:border-accent focus:outline-none rounded-xl2 px-4 py-3 text-slate-900 placeholder-slate-500 text-sm"
-                      placeholder="+92 300 1234567" />
+                      placeholder="0300 1234567"
+                      maxLength={15}
+                      required
+                    />
                     {errors.phone && <p className="text-red-600 text-xs mt-1">{errors.phone}</p>}
                   </div>
                 </div>
 
                 <div>
                   <label className="text-xs font-semibold text-slate-500 mb-1.5 block">Email Address</label>
-                  <input type="email" value={form.email} onChange={handleChange('email')}
+                  <input
+                    type="email"
+                    inputMode="email"
+                    autoComplete="email"
+                    value={form.email}
+                    onChange={handleChange('email')}
                     className="w-full bg-navy-700 border border-navy-700 focus:border-accent focus:outline-none rounded-xl2 px-4 py-3 text-slate-900 placeholder-slate-500 text-sm"
-                    placeholder="you@example.com" />
+                    placeholder="you@example.com"
+                    required
+                  />
                   {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email}</p>}
                 </div>
 
                 <div>
                   <label className="text-xs font-semibold text-slate-500 mb-1.5 block">Delivery Address</label>
-                  <textarea value={form.address} onChange={handleChange('address')} rows={3}
+                  <textarea
+                    value={form.address}
+                    onChange={handleChange('address')}
+                    rows={3}
+                    autoComplete="street-address"
                     className="w-full bg-navy-700 border border-navy-700 focus:border-accent focus:outline-none rounded-xl2 px-4 py-3 text-slate-900 placeholder-slate-500 text-sm resize-none"
-                    placeholder="House #, Street, Area" />
+                    placeholder="House #, Street, Area"
+                    required
+                  />
                   {errors.address && <p className="text-red-600 text-xs mt-1">{errors.address}</p>}
                 </div>
 
@@ -288,7 +314,11 @@ const Checkout = () => {
 
                 <div>
                   <label className="text-xs font-semibold text-slate-500 mb-1.5 block">City</label>
-                  <select value={form.city} onChange={handleChange('city')}
+                  <select
+                    value={form.city}
+                    onChange={handleChange('city')}
+                    autoComplete="address-level2"
+                    required
                     className="w-full bg-navy-700 border border-navy-700 text-slate-900 rounded-xl2 px-4 py-3 text-sm focus:outline-none focus:border-accent">
                     {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
                   </select>
@@ -303,12 +333,10 @@ const Checkout = () => {
                     className="accent-accent w-4 h-4" />
                   <span className="text-sm text-slate-900">💵 Cash on Delivery</span>
                 </label>
-                <label className="flex items-center gap-3 bg-navy-700 rounded-xl2 px-4 py-3 cursor-pointer opacity-60">
-                  <input type="radio" name="payment" checked={form.paymentMethod === 'card'}
-                    onChange={() => setForm((f) => ({ ...f, paymentMethod: 'card' }))}
-                    className="accent-accent w-4 h-4" />
-                  <span className="text-sm text-slate-900">💳 Credit / Debit Card (coming soon)</span>
-                </label>
+                <div className="flex items-center gap-3 bg-navy-700 rounded-xl2 px-4 py-3 opacity-60">
+                  <span className="w-4 h-4 rounded-full border border-slate-400 shrink-0" aria-hidden="true" />
+                  <span className="text-sm text-slate-900">💳 Credit / Debit Card <span className="text-xs text-slate-500">(coming soon)</span></span>
+                </div>
               </div>
             </div>
 
@@ -348,10 +376,20 @@ const Checkout = () => {
                   </div>
                 </div>
 
-                {submitError && <p className="text-red-600 text-sm">{submitError}</p>}
+                {submitError && (
+                  <div role="alert" className="rounded-xl2 border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    {submitError}
+                  </div>
+                )}
 
-                <Button type="submit" className="w-full" size="lg" disabled={placing}>
-                  {placing ? 'Placing Order…' : 'Place Order'}
+                <div className="rounded-xl2 bg-slate-50 px-4 py-3 text-xs text-slate-500 space-y-1">
+                  <p>✓ Cash on Delivery available</p>
+                  <p>✓ Free delivery across Pakistan</p>
+                  <p>✓ Your order is protected against duplicate submission</p>
+                </div>
+
+                <Button type="submit" className="w-full" size="lg" disabled={placing || items.length === 0}>
+                  {placing ? 'Placing Order…' : 'Place Order — Rs. ' + total.toLocaleString('en-PK')}
                 </Button>
                 <Link to="/cart" className="block text-center text-sm text-slate-500 hover:text-accent transition-colors">
                   ← Back to Cart

@@ -11,4 +11,4 @@ Disallow: /signup
 Disallow: /forgot-password
 Disallow: /reset-password
 
-Sitemap: https://khanmobile.pk/sitemap.xml
+Sitemap: https://www.khanmobiles.store/sitemap.xml

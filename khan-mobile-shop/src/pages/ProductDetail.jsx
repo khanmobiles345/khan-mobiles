@@ -27,6 +27,96 @@ const CURATED_PRODUCT_SEO = {
     description: 'Shop SoundPro Pro Wireless Earbuds for iPhone 13/14/15 and Samsung S23/A54. Rs. 3,999 with Cash on Delivery across Pakistan.',
     imageAlt: 'SoundPro Pro Wireless Earbuds for iPhone and Samsung',
   },
+  'premium-silicone-case': {
+    title: 'Premium Silicone Case by ProShield for iPhone 13, iPhone 14 & iPhone 15',
+    description: 'Shop ProShield Premium Silicone Case for iPhone 13, iPhone 14 and iPhone 15. Rs. 1,299 with Cash on Delivery across Pakistan.',
+    imageAlt: 'ProShield Premium Silicone Case for iPhone 13, 14 and 15',
+  },
+  '20000mah-power-bank': {
+    title: '20000mAh Power Bank by PowerMax for Samsung A54, Redmi Note 12/11 & iPhone 13/14',
+    description: 'Shop PowerMax 20000mAh Power Bank for Samsung A54, Redmi Note 12/11 and iPhone 13/14. Rs. 4,499 with Cash on Delivery across Pakistan.',
+    imageAlt: 'PowerMax 20000mAh Power Bank for Samsung, Redmi and iPhone',
+  },
+  'tempered-glass-shield': {
+    title: 'Tempered Glass Shield by ClearGuard for iPhone 13/14 & Samsung S23/A54',
+    description: 'Shop ClearGuard Tempered Glass Shield for iPhone 13/14 and Samsung S23/A54. Rs. 599 with Cash on Delivery across Pakistan.',
+    imageAlt: 'ClearGuard Tempered Glass Shield for iPhone and Samsung',
+  },
+  'smart-watch-series-x': {
+    title: 'Smart Watch Series X by SmartTech for iPhone 13/14/15 & Samsung S23',
+    description: 'Shop SmartTech Smart Watch Series X for iPhone 13/14/15 and Samsung S23. Rs. 8,999 with Cash on Delivery across Pakistan.',
+    imageAlt: 'SmartTech Smart Watch Series X for iPhone and Samsung',
+  },
+  'braided-usb-c-cable-2m': {
+    title: 'Braided USB-C Cable 2m by CablePro for Samsung S23/A54, Redmi Note 12 & OnePlus 11',
+    description: 'Shop CablePro Braided USB-C Cable 2m for Samsung S23/A54, Redmi Note 12 and OnePlus 11. Rs. 799 with Cash on Delivery across Pakistan.',
+    imageAlt: 'CablePro Braided USB-C Cable 2m for Samsung, Redmi and OnePlus',
+  },
+  'magnetic-car-mount': {
+    title: 'Magnetic Car Mount by MagGrip for iPhone 13/14/15 & Samsung S23/A54',
+    description: 'Shop MagGrip Magnetic Car Mount for iPhone 13/14/15 and Samsung S23/A54. Rs. 1,599 with Cash on Delivery across Pakistan.',
+    imageAlt: 'MagGrip Magnetic Car Mount for iPhone and Samsung',
+  },
+  'leather-flip-case': {
+    title: 'Leather Flip Case by ProShield for Samsung S23/A54 & Redmi Note 12',
+    description: 'Shop ProShield Leather Flip Case for Samsung S23/A54 and Redmi Note 12. Rs. 1,899 with Cash on Delivery across Pakistan.',
+    imageAlt: 'ProShield Leather Flip Case for Samsung and Redmi',
+  },
+  'wireless-charging-pad': {
+    title: 'Wireless Charging Pad by PowerMax for iPhone 13/14/15 & Samsung S23',
+    description: 'Shop PowerMax Wireless Charging Pad for iPhone 13/14/15 and Samsung S23. Rs. 1,799 with Cash on Delivery across Pakistan.',
+    imageAlt: 'PowerMax Wireless Charging Pad for iPhone and Samsung',
+  },
+  'noise-cancelling-headphones': {
+    title: 'Noise Cancelling Headphones by SoundPro for iPhone 13/14/15, Samsung S23 & OnePlus 11',
+    description: 'Shop SoundPro Noise Cancelling Headphones for iPhone 13/14/15, Samsung S23 and OnePlus 11. Rs. 5,999 with Cash on Delivery across Pakistan.',
+    imageAlt: 'SoundPro Noise Cancelling Headphones for iPhone, Samsung and OnePlus',
+  },
+  '10000mah-slim-power-bank': {
+    title: '10000mAh Slim Power Bank by PowerMax for Redmi Note 12/11, Samsung A54 & OnePlus 11',
+    description: 'Shop PowerMax 10000mAh Slim Power Bank for Redmi Note 12/11, Samsung A54 and OnePlus 11. Rs. 2,999 with Cash on Delivery across Pakistan.',
+    imageAlt: 'PowerMax 10000mAh Slim Power Bank for Redmi, Samsung and OnePlus',
+  },
+  'privacy-screen-protector': {
+    title: 'Privacy Screen Protector by ClearGuard for iPhone 13/14 & Samsung S23',
+    description: 'Shop ClearGuard Privacy Screen Protector for iPhone 13/14 and Samsung S23. Rs. 899 with Cash on Delivery across Pakistan.',
+    imageAlt: 'ClearGuard Privacy Screen Protector for iPhone and Samsung',
+  },
+  'sport-band-smartwatch': {
+    title: 'Sport Band Smartwatch by SmartTech for Android Universal, Samsung A54 & Redmi Note 12',
+    description: 'Shop SmartTech Sport Band Smartwatch for Android Universal, Samsung A54 and Redmi Note 12. Rs. 5,499 with Cash on Delivery across Pakistan.',
+    imageAlt: 'SmartTech Sport Band Smartwatch for Android, Samsung and Redmi',
+  },
+  'lightning-cable-1m': {
+    title: 'Lightning Cable 1m by CablePro for iPhone 13 & iPhone 14',
+    description: 'Shop CablePro Lightning Cable 1m for iPhone 13 and iPhone 14. Rs. 699 with Cash on Delivery across Pakistan.',
+    imageAlt: 'CablePro Lightning Cable 1m for iPhone 13 and 14',
+  },
+  'rugged-armor-case': {
+    title: 'Rugged Armor Case by ArmorX for Redmi Note 12/11 & Samsung A54',
+    description: 'Shop ArmorX Rugged Armor Case for Redmi Note 12/11 and Samsung A54. Rs. 2,199 with Cash on Delivery across Pakistan.',
+    imageAlt: 'ArmorX Rugged Armor Case for Redmi and Samsung',
+  },
+  '5-in-1-charging-station': {
+    title: '5-in-1 Charging Station by PowerMax for iPhone 15, Samsung S23, OnePlus 11 & iPad',
+    description: 'Shop PowerMax 5-in-1 Charging Station for iPhone 15, Samsung S23, OnePlus 11 and iPad. Rs. 3,499 with Cash on Delivery across Pakistan.',
+    imageAlt: 'PowerMax 5-in-1 Charging Station for iPhone, Samsung, OnePlus and iPad',
+  },
+  'in-ear-sport-earphones': {
+    title: 'In-Ear Sport Earphones by SoundPro for Samsung A54, Redmi Note 12/11 & OnePlus 11',
+    description: 'Shop SoundPro In-Ear Sport Earphones for Samsung A54, Redmi Note 12/11 and OnePlus 11. Rs. 1,499 with Cash on Delivery across Pakistan.',
+    imageAlt: 'SoundPro In-Ear Sport Earphones for Samsung, Redmi and OnePlus',
+  },
+  'clear-tpu-case': {
+    title: 'Clear TPU Case by ProShield for iPhone 15/14/13 & Samsung S23',
+    description: 'Shop ProShield Clear TPU Case for iPhone 15/14/13 and Samsung S23. Rs. 799 with Cash on Delivery across Pakistan.',
+    imageAlt: 'ProShield Clear TPU Case for iPhone and Samsung',
+  },
+  'usb-c-to-lightning-cable': {
+    title: 'USB-C to Lightning Cable by CablePro for iPhone 13/14/15',
+    description: 'Shop CablePro USB-C to Lightning Cable for iPhone 13/14/15. Rs. 999 with Cash on Delivery across Pakistan.',
+    imageAlt: 'CablePro USB-C to Lightning Cable for iPhone 13, 14 and 15',
+  },
 };
 
 const StarRating = ({ rating, size = 16 }) => (

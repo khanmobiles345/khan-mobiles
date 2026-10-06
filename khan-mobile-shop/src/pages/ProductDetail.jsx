@@ -190,13 +190,22 @@ const ProductDetail = () => {
   const activeImage = gallery[activeImageIndex]?.url || imageUrl;
   const onSale = safeCompareAtPrice > safePrice;
   const discountPct = onSale ? Math.round(((safeCompareAtPrice - safePrice) / safeCompareAtPrice) * 100) : 0;
+  const compatibleSummary = compatibleModels.length > 0
+    ? compatibleModels.slice(0, 4).join(', ') + (compatibleModels.length > 4 ? ' and more' : '')
+    : '';
+  const seoTitleBase = compatibleSummary
+    ? `${name} by ${brand} for ${compatibleSummary}`
+    : `${name} by ${brand}`;
+  const seoTitle = seoTitleBase.length > 58 ? seoTitleBase.slice(0, 58).replace(/\\s+\\S*$/, '') : seoTitleBase;
+  const seoDescription = `${name} by ${brand} — Rs. ${safePrice.toLocaleString('en-PK')}. ${compatibleSummary ? `Compatible with ${compatibleSummary}. ` : ''}Shop online at Khan Mobile Shop with Cash on Delivery across Pakistan.`;
+
   const productSchema = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     category: category || undefined,
     isRelatedTo: related.length ? related.map((item) => ({ '@type': 'Product', name: item.name, sku: String(item.id) })) : undefined,
     name,
-    description: description || `${name} by ${brand}`,
+    description: seoDescription,
     image: gallery.map((img) => img.url).filter(Boolean),
     sku: String(product.id),
     brand: brand ? { '@type': 'Brand', name: brand } : undefined,
@@ -250,8 +259,8 @@ const ProductDetail = () => {
   return (
     <>
       <SEO
-        title={name}
-        description={description || `${name} by ${brand} — Rs. ${safePrice.toLocaleString('en-PK')}. Available now at Khan Mobile Shop with fast delivery across Pakistan.`}
+        title={seoTitle}
+        description={seoDescription}
         path={`/product/${product.slug || product.id}`}
         image={activeImage}
         structuredData={{
@@ -406,7 +415,7 @@ const ProductDetail = () => {
                 </div>
                 <div className="rounded-xl2 border border-navy-700 bg-navy-800 px-3 py-2.5">
                   <p className="text-xs font-bold text-slate-800">🛡️ Quality Checked</p>
-                  <p className="text-[11px] text-slate-500 mt-0.5">${brand?.toLowerCase() === 'hottu' ? '1-year warranty' : 'Before dispatch'}</p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">{brand?.toLowerCase() === 'hottu' ? '1-year warranty' : 'Before dispatch'}</p>
                 </div>
               </div>
 

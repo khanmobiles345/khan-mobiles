@@ -12,10 +12,14 @@ const badgeColors = {
   New: 'text-blue-600', Hot: 'text-orange-600', Sale: 'text-orange-600', Bestseller: 'text-green-600',
 };
 
-const StatCard = ({ label, value, accent }) => (
-  <div className="bg-navy-800 rounded-xl2 p-5">
-    <p className="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-2">{label}</p>
-    <p className={`text-2xl font-extrabold ${accent || 'text-slate-900'}`}>{value}</p>
+const StatCard = ({ label, value, accent, hint }) => (
+  <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
+    <div className="flex items-start justify-between gap-3">
+      <p className="text-xs font-bold uppercase tracking-widest text-slate-500">{label}</p>
+      <span className="h-2.5 w-2.5 rounded-full bg-accent shrink-0" />
+    </div>
+    <p className={`text-2xl md:text-3xl font-extrabold mt-3 ${accent || 'text-slate-900'}`}>{value}</p>
+    {hint && <p className="text-xs text-slate-500 mt-1">{hint}</p>}
   </div>
 );
 
@@ -62,28 +66,32 @@ const AdminDashboard = () => {
   return (
     <>
       <Navbar />
-      <main className="pt-16 min-h-screen">
+      <main className="pt-16 min-h-screen bg-slate-50">
         <Container>
-          <div className="py-10 flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-extrabold mb-2">Admin Dashboard</h1>
-              <p className="text-slate-500">{products.length} product{products.length !== 1 ? 's' : ''} in the catalog</p>
+          <div className="py-8 md:py-10">
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent mb-2">Khan Mobiles • Admin</p>
+                <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-2">Dashboard</h1>
+                <p className="text-slate-500">Manage your store, orders and product catalog from one place.</p>
+              </div>
+              <Link to="/admin/products/new"><Button>+ Add Product</Button></Link>
             </div>
-            <Link to="/admin/products/new"><Button>+ Add Product</Button></Link>
-          </div>
 
-          {stats && (
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-              <StatCard label="Pending Orders" value={stats.pendingCount} accent={stats.pendingCount > 0 ? 'text-yellow-600' : undefined} />
-              <StatCard label="Total Orders" value={stats.totalOrders} />
-              <StatCard label="Revenue" value={`Rs. ${stats.totalRevenue.toLocaleString('en-PK')}`} accent="text-accent" />
-              <StatCard label="Low Stock" value={stats.lowStockCount} accent={stats.lowStockCount > 0 ? 'text-orange-600' : undefined} />
+            {stats && (
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <StatCard label="Pending Orders" value={stats.pendingCount} accent={stats.pendingCount > 0 ? 'text-yellow-600' : undefined} hint="Needs attention" />
+                <StatCard label="Total Orders" value={stats.totalOrders} hint="All-time orders" />
+                <StatCard label="Revenue" value={`Rs. ${stats.totalRevenue.toLocaleString('en-PK')}`} accent="text-accent" hint="All-time revenue" />
+                <StatCard label="Low Stock" value={stats.lowStockCount} accent={stats.lowStockCount > 0 ? 'text-orange-600' : undefined} hint="Review inventory" />
+              </div>
+            )}
+
+            <div className="bg-white border border-slate-200 rounded-2xl p-2 shadow-sm mb-8">
+              <AdminTabs />
             </div>
-          )}
 
-          <AdminTabs />
-
-          {error && (
+                    {error && (
             <div className="bg-red-500/10 border border-red-500/30 text-red-600 text-sm rounded-xl2 px-4 py-3 mb-6">
               {error}
             </div>

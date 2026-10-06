@@ -9,6 +9,30 @@ const SEO = ({ title, description, path = '', image, noindex = false, structured
   const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} — Premium Mobile Accessories`;
   const url = `${SITE_URL}${path}`;
   const ogImage = image || DEFAULT_IMAGE;
+  const siteSchema = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Organization',
+        '@id': SITE_URL + '/#organization',
+        name: SITE_NAME,
+        url: SITE_URL,
+        logo: { '@type': 'ImageObject', url: SITE_URL + '/favicon.svg' },
+      },
+      {
+        '@type': 'WebSite',
+        '@id': SITE_URL + '/#website',
+        name: SITE_NAME,
+        url: SITE_URL,
+        publisher: { '@id': SITE_URL + '/#organization' },
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: SITE_URL + '/shop?search={search_term_string}',
+          'query-input': 'required name=search_term_string',
+        },
+      },
+    ],
+  };
 
   return (
     <Helmet>
@@ -25,6 +49,10 @@ const SEO = ({ title, description, path = '', image, noindex = false, structured
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={ogImage} />
+
+      <script type="application/ld+json">
+        {JSON.stringify(siteSchema)}
+      </script>
 
       {structuredData && (
         <script type="application/ld+json">

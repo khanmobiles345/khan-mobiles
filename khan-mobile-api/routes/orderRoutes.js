@@ -3,8 +3,9 @@ const router = express.Router();
 const { create, myOrders, cancelMine, listAll, getOne, updateStatus, deleteOrder, stats, downloadInvoice } = require('../controllers/orderController');
 const { book, track, cancel } = require('../controllers/leopardsController');
 const { protect, adminOnly, optionalAuth } = require('../middleware/auth');
+const { orderLimiter } = require('../middleware/rateLimit');
 
-router.post('/', optionalAuth, create);
+router.post('/', orderLimiter, optionalAuth, create);
 router.get('/mine', protect, myOrders);
 router.put('/:id/cancel', protect, cancelMine);
 router.get('/:id/invoice', optionalAuth, downloadInvoice);

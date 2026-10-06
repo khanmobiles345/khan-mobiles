@@ -57,7 +57,7 @@ const AdminReviews = () => {
   return (
     <>
       <Navbar />
-      <main className="pt-16 min-h-screen">
+      <main className="pt-16 min-h-screen bg-slate-50">
         <Container>
           <div className="py-10 flex flex-wrap items-center justify-between gap-4">
             <div>
@@ -65,7 +65,7 @@ const AdminReviews = () => {
               <p className="text-slate-500">{reviews.length} review{reviews.length !== 1 ? 's' : ''} across all products</p>
             </div>
             <select value={ratingFilter} onChange={(e) => setRatingFilter(e.target.value)}
-              className="bg-navy-700 border border-navy-700 text-slate-900 text-sm rounded-xl2 px-4 py-2.5 focus:outline-none focus:border-accent">
+              className="bg-navy-700 border border-slate-200 text-slate-900 text-sm rounded-xl2 px-4 py-2.5 focus:outline-none focus:border-accent">
               <option value="">All ratings</option>
               {[5, 4, 3, 2, 1].map((n) => <option key={n} value={n}>{n} star{n !== 1 ? 's' : ''}</option>)}
             </select>
@@ -88,7 +88,7 @@ const AdminReviews = () => {
           ) : (
             <div className="space-y-3 pb-20">
               {filtered.map((r) => (
-                <div key={r.id} className="bg-navy-800 rounded-xl2 p-5">
+                <div key={r.id} className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md">
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-3 mb-1.5">

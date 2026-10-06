@@ -16,6 +16,14 @@ import { trackGA4ViewItem, trackGA4AddToCart } from '../services/analytics';
 
 const badgeVariantMap = { New: 'accent', Hot: 'warning', Sale: 'warning', Bestseller: 'success' };
 
+const CURATED_PRODUCT_SEO = {
+  '65w-gan-fast-charger': {
+    title: '65W GaN Fast Charger by PowerMax for Samsung, iPhone & More',
+    description: 'Shop the PowerMax 65W GaN Fast Charger for Samsung S23/S22, iPhone 15, Redmi Note 12 and OnePlus 11. Rs. 2,499 with Cash on Delivery across Pakistan.',
+    imageAlt: 'PowerMax 65W GaN Fast Charger for Samsung, iPhone, Redmi and OnePlus',
+  },
+};
+
 const StarRating = ({ rating, size = 16 }) => (
   <div className="flex items-center gap-1">
     {[1, 2, 3, 4, 5].map((s) => (
@@ -196,8 +204,11 @@ const ProductDetail = () => {
   const seoTitleBase = compatibleSummary
     ? `${name} by ${brand} for ${compatibleSummary}`
     : `${name} by ${brand}`;
-  const seoTitle = seoTitleBase.length > 58 ? seoTitleBase.slice(0, 58).replace(/\\s+\\S*$/, '') : seoTitleBase;
-  const seoDescription = `${name} by ${brand} — Rs. ${safePrice.toLocaleString('en-PK')}. ${compatibleSummary ? `Compatible with ${compatibleSummary}. ` : ''}Shop online at Khan Mobile Shop with Cash on Delivery across Pakistan.`;
+  const genericSeoTitle = seoTitleBase.length > 58 ? seoTitleBase.slice(0, 58).replace(/\\s+\\S*$/, '') : seoTitleBase;
+  const curatedSeo = CURATED_PRODUCT_SEO[product.slug] || null;
+  const seoTitle = curatedSeo?.title || genericSeoTitle;
+  const seoDescription = curatedSeo?.description || `${name} by ${brand} — Rs. ${safePrice.toLocaleString('en-PK')}. ${compatibleSummary ? `Compatible with ${compatibleSummary}. ` : ''}Shop online at Khan Mobile Shop with Cash on Delivery across Pakistan.`;
+  const imageAlt = curatedSeo?.imageAlt || `${name} by ${brand}${compatibleSummary ? ` for ${compatibleSummary}` : ''}`;
 
   const productSchema = {
     '@context': 'https://schema.org',
@@ -313,7 +324,7 @@ const ProductDetail = () => {
                 {activeImage ? (
                   <img
                     src={activeImage}
-                    alt={name}
+                    alt={imageAlt}
                     width="1200"
                     height="960"
                     fetchPriority="high"
@@ -393,7 +404,7 @@ const ProductDetail = () => {
               </div>
 
               <p className="text-slate-500 leading-relaxed mb-4">
-                {description || `The ${name} from ${brand} combines premium build quality with everyday reliability.`}
+                {description || curatedSeo?.description || `The ${name} from ${brand} combines premium build quality with everyday reliability.`}
               </p>
 
               <p className={`text-sm font-medium mb-5 ${safeStock === 0 ? 'text-red-600' : safeStock < 10 ? 'text-orange-600' : 'text-green-600'}`}>

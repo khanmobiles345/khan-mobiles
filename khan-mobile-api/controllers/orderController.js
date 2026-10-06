@@ -310,11 +310,50 @@ exports.updateStatus = async (req, res) => {
   const { status } = req.body;
   const valid = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
   if (!valid.includes(status)) return res.status(400).json({ success: false, message: 'Invalid status.' });
-  const order = await Order.findById(req.params.id);
-  if (!order) return res.status(404).json({ success: false, message: 'Order not found.' });
-  if (status === 'cancelled' && order.status !== 'cancelled') for (const item of order.items) if (item.product) await Product.updateOne({ _id: item.product }, { $inc: { stock: item.quantity } });
-  order.status = status; await order.save();
-  sendOrderStatusEmail({ orderNumber: order.orderNumber, email: order.email }, status).catch(() => {});
+
+  const session = await mongoose.startSession();
+  let changed = false;
+  try {
+    await session.withTransaction(async () => {
+      const order = await Order.findById(req.params.id).session(session);
+      if (!order) throw Object.assign(new Error('Order not found.'), { statusCode: 404 });
+      if (order.status === status) return;
+
+      // A cancelled order is final. Re-opening it would make stock accounting
+      // ambiguous because its inventory was already returned to stock.
+      if (order.status === 'cancelled') {
+        throw Object.assign(new Error('A cancelled order cannot be reopened.'), { statusCode: 409 });
+      }
+
+      if (status === 'cancelled') {
+        // Restore inventory exactly once, inside the same transaction as the
+        // status change. This prevents double-restocking on retries/races.
+        if (!order.stockRestoredAt) {
+          for (const item of order.items) {
+            if (item.product) {
+              await Product.updateOne(
+                { _id: item.product },
+                { $inc: { stock: item.quantity } },
+                { session }
+              );
+            }
+          }
+          order.stockRestoredAt = new Date();
+        }
+      }
+
+      order.status = status;
+      await order.save({ session });
+      changed = true;
+    });
+  } finally {
+    await session.endSession();
+  }
+
+  const order = await Order.findById(req.params.id).select('orderNumber email');
+  if (changed && order) {
+    sendOrderStatusEmail({ orderNumber: order.orderNumber, email: order.email }, status).catch(() => {});
+  }
   res.json({ success: true, message: 'Order status updated.' });
 };
 

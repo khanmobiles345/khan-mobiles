@@ -53,6 +53,8 @@ const orderSchema = new mongoose.Schema(
     // Server-side Meta Purchase delivery state. This does not affect order
     // checkout; it lets safe retries avoid losing an event after a transient CAPI failure.
     metaPurchaseSentAt: { type: Date, default: null },
+    // Prevents admin cancellation/deletion flows from restoring the same stock twice.
+    stockRestoredAt: { type: Date, default: null },
   },
   { timestamps: { createdAt: true, updatedAt: false } }
 );

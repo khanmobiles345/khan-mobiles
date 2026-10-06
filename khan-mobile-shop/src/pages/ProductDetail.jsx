@@ -202,7 +202,7 @@ const ProductDetail = () => {
     brand: brand ? { '@type': 'Brand', name: brand } : undefined,
     offers: {
       '@type': 'Offer',
-      url: `https://www.khanmobiles.store/product/${product.id}`,
+      url: `https://www.khanmobiles.store/product/${product.slug || product.id}`,
       priceCurrency: 'PKR',
       price: safePrice.toFixed(2),
       availability: safeStock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
@@ -252,9 +252,23 @@ const ProductDetail = () => {
       <SEO
         title={name}
         description={description || `${name} by ${brand} — Rs. ${safePrice.toLocaleString('en-PK')}. Available now at Khan Mobile Shop with fast delivery across Pakistan.`}
-        path={`/product/${product.id}`}
+        path={`/product/${product.slug || product.id}`}
         image={activeImage}
-        structuredData={productSchema}
+        structuredData={{
+          '@context': 'https://schema.org',
+          '@graph': [
+            productSchema,
+            {
+              '@type': 'BreadcrumbList',
+              itemListElement: [
+                { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.khanmobiles.store/' },
+                { '@type': 'ListItem', position: 2, name: 'Shop', item: 'https://www.khanmobiles.store/shop' },
+                { '@type': 'ListItem', position: 3, name: category, item: 'https://www.khanmobiles.store/shop?category=' + encodeURIComponent(category) },
+                { '@type': 'ListItem', position: 4, name, item: 'https://www.khanmobiles.store/product/' + (product.slug || product.id) },
+              ],
+            },
+          ],
+        }}
       />
       <Navbar />
       <main className="pt-16 min-h-screen">

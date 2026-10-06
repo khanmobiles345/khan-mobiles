@@ -370,11 +370,34 @@ exports.downloadInvoice = async (req, res) => {
 };
 
 exports.deleteOrder = async (req, res) => {
-  const order = await Order.findById(req.params.id);
-  if (!order) return res.status(404).json({ success: false, message: 'Order not found.' });
-  if (order.courier?.trackingNumber) return res.status(409).json({ success: false, message: 'This order has a Leopards tracking number. Cancel the shipment before deleting the order.' });
-  if (order.status !== 'cancelled') for (const item of order.items) if (item.product) await Product.updateOne({ _id: item.product }, { $inc: { stock: item.quantity } });
-  await Order.deleteOne({ _id: order._id });
+  const session = await mongoose.startSession();
+  try {
+    await session.withTransaction(async () => {
+      const order = await Order.findById(req.params.id).session(session);
+      if (!order) throw Object.assign(new Error('Order not found.'), { statusCode: 404 });
+      if (order.courier?.trackingNumber) {
+        throw Object.assign(new Error('This order has a Leopards tracking number. Cancel the shipment before deleting the order.'), { statusCode: 409 });
+      }
+
+      // Cancelled orders have already restored stock. Active orders need one
+      // final restoration before deletion, in the same transaction.
+      if (order.status !== 'cancelled' && !order.stockRestoredAt) {
+        for (const item of order.items) {
+          if (item.product) {
+            await Product.updateOne(
+              { _id: item.product },
+              { $inc: { stock: item.quantity } },
+              { session }
+            );
+          }
+        }
+      }
+
+      await Order.deleteOne({ _id: order._id }).session(session);
+    });
+  } finally {
+    await session.endSession();
+  }
   res.json({ success: true, message: 'Order deleted.' });
 };
 
